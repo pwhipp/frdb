@@ -1,0 +1,74 @@
+{% extends "base.html" %}
+
+{% block title %}FRDB{% endblock %}
+
+{% block extra_head %}
+    <link href="https://cdn.jsdelivr.net/npm/tabulator-tables@6.4.0/dist/css/tabulator_bootstrap5.min.css" rel="stylesheet">
+    <link href="{{ url_for('static', filename='frdb.css') }}" rel="stylesheet">
+{% endblock %}
+
+{% block content %}
+    <nav class="filter-bar" aria-label="Table filters">
+        <span class="filter-bar-label">Filter by:</span>
+        <div class="filter-buttons">
+            <button class="btn btn-outline-secondary btn-sm filter-pill" type="button" data-filter-field="recovery_methods">
+                <span>Recovery methods</span>
+                <span class="filter-pill-count"></span>
+            </button>
+            <button class="btn btn-outline-secondary btn-sm filter-pill" type="button" data-filter-field="equipment_tested">
+                <span>Equipment tested</span>
+                <span class="filter-pill-count"></span>
+            </button>
+            <button class="btn btn-outline-secondary btn-sm filter-pill" type="button" data-filter-field="biological_material">
+                <span>Biological material</span>
+                <span class="filter-pill-count"></span>
+            </button>
+            <button class="btn btn-outline-secondary btn-sm filter-pill" type="button" data-filter-field="substrate_type">
+                <span>Substrate type</span>
+                <span class="filter-pill-count"></span>
+            </button>
+        </div>
+        <div class="filter-bar-spacer"></div>
+        <div class="table-actions" aria-label="Table actions">
+            <button class="btn btn-outline-secondary btn-sm" id="clearFiltersButton" type="button">Clear filters</button>
+            <span class="row-count" id="rowCount">Loading...</span>
+        </div>
+    </nav>
+
+    <main class="table-shell">
+        <div id="researchTable" aria-label="Evidence recovery research table"></div>
+    </main>
+
+    <div class="modal fade" id="filterModal" tabindex="-1" aria-labelledby="filterModalTitle" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-scrollable">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <div>
+                        <h2 class="modal-title fs-5" id="filterModalTitle">Filter</h2>
+                        <p class="modal-subtitle" id="filterModalSubtitle"></p>
+                    </div>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="filter-tools">
+                        <input class="form-control form-control-sm" id="filterSearch" type="search" placeholder="Search values" autocomplete="off">
+                        <div class="btn-group btn-group-sm" role="group" aria-label="Filter selection tools">
+                            <button class="btn btn-outline-secondary" id="selectAllButton" type="button">Select all</button>
+                            <button class="btn btn-outline-secondary" id="selectNoneButton" type="button">Select none</button>
+                        </div>
+                    </div>
+                    <div class="filter-options" id="filterOptions"></div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-primary" id="applyFilterButton">Apply</button>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block scripts %}
+    <script src="https://cdn.jsdelivr.net/npm/tabulator-tables@6.4.0/dist/js/tabulator.min.js"></script>
+    <script src="{{ url_for('static', filename='frdb.js') }}"></script>
+{% endblock %}

@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+
+{% block title %}Propose additions - FRDB{% endblock %}
+
+{% block content %}
+    <main class="page-shell">
+        <section class="page-panel">
+            <h1>Propose additions</h1>
+            <p>
+                <a class="btn btn-outline-primary" href="{{ url_for('example_workbook') }}">Download example workbook</a>
+            </p>
+            <p>Update the workbook with your added research and upload the result here. Once reviewed and verified, we will add your information.</p>
+            <p class="status-message" id="proposalStatus"></p>
+
+            <form id="proposalForm" novalidate>
+                <div class="mb-3">
+                    <label class="form-label" for="proposalEmail">Your email address</label>
+                    <input class="form-control" id="proposalEmail" name="email" type="email" maxlength="254" required>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label" for="proposalWorkbook">Updated workbook</label>
+                    <input class="form-control" id="proposalWorkbook" name="workbook" type="file" accept=".xlsx" required>
+                </div>
+                <div class="form-actions">
+                    <button class="btn btn-primary" id="proposalSubmit" type="submit" disabled>Submit</button>
+                    <button class="btn btn-outline-secondary" id="proposalCancel" type="button">Cancel</button>
+                </div>
+            </form>
+
+            <div class="verification-panel d-none" id="proposalVerification">
+                <div class="mb-3">
+                    <label class="form-label" for="proposalCode">Verification code</label>
+                    <input class="form-control verification-code" id="proposalCode" type="text" inputmode="numeric" maxlength="5" autocomplete="one-time-code">
+                </div>
+                <div class="form-actions">
+                    <button class="btn btn-primary" id="proposalVerify" type="button" disabled>Verify</button>
+                    <button class="btn btn-outline-secondary" id="proposalVerifyCancel" type="button">Cancel</button>
+                </div>
+            </div>
+        </section>
+    </main>
+{% endblock %}
+
+{% block scripts %}
+    <script src="{{ url_for('static', filename='forms/proposal.js') }}"></script>
+{% endblock %}

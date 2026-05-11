@@ -1,0 +1,82 @@
+html,
+body {
+    min-height: 100%;
+}
+
+.app-nav .navbar-brand {
+    font-weight: 700;
+}
+
+.app-brand {
+    display: flex;
+    align-items: baseline;
+    gap: 0.6rem;
+    margin-right: 1.5rem;
+}
+
+.app-brand-title {
+    font-size: 1.25rem;
+}
+
+.app-brand-subtitle {
+    color: #637083;
+    font-size: 0.9rem;
+    font-weight: 400;
+}
+
+.app-nav .nav-link.active {
+    font-weight: 700;
+}
+
+.page-shell {
+    display: flex;
+    justify-content: center;
+    min-height: calc(100vh - 3.5rem);
+    padding: 2rem 1rem;
+    background: #f7f9fb;
+}
+
+.page-panel {
+    width: min(100%, 46rem);
+    padding: 1.5rem;
+    border: 1px solid #d9e0e7;
+    border-radius: 8px;
+    background: #ffffff;
+}
+
+.page-panel h1 {
+    margin: 0 0 1.25rem;
+    font-size: 1.55rem;
+}
+
+.form-actions {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.verification-panel {
+    margin-top: 1.25rem;
+    padding-top: 1.25rem;
+    border-top: 1px solid #d9e0e7;
+}
+
+.status-message {
+    color: #344054;
+}
+
+.verification-code {
+    max-width: 11rem;
+}
+
+@media (max-width: 720px) {
+    .app-brand {
+        align-items: flex-start;
+        flex-direction: column;
+        gap: 0;
+    }
+
+    .page-panel {
+        padding: 1rem;
+    }
+}

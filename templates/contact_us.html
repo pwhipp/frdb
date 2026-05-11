@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+
+{% block title %}Contact us - FRDB{% endblock %}
+
+{% block content %}
+    <main class="page-shell">
+        <section class="page-panel">
+            <h1>Contact us</h1>
+            <p class="status-message" id="contactStatus"></p>
+            <form id="contactForm" novalidate>
+                <div class="mb-3">
+                    <label class="form-label" for="contactEmail">Your email address</label>
+                    <input class="form-control" id="contactEmail" name="email" type="email" maxlength="254" required>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label" for="contactSubject">Subject</label>
+                    <input class="form-control" id="contactSubject" name="subject" type="text" maxlength="132" required>
+                    <div class="form-text"><span id="subjectCount">0</span>/132</div>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label" for="contactMessage">Message</label>
+                    <textarea class="form-control" id="contactMessage" name="message" rows="8" maxlength="1000" required></textarea>
+                    <div class="form-text"><span id="messageCount">0</span>/1000</div>
+                </div>
+                <div class="form-actions">
+                    <button class="btn btn-primary" id="contactSubmit" type="submit" disabled>Submit</button>
+                    <button class="btn btn-outline-secondary" id="contactCancel" type="button">Cancel</button>
+                </div>
+            </form>
+
+            <div class="verification-panel d-none" id="contactVerification">
+                <div class="mb-3">
+                    <label class="form-label" for="contactCode">Verification code</label>
+                    <input class="form-control verification-code" id="contactCode" type="text" inputmode="numeric" maxlength="5" autocomplete="one-time-code">
+                </div>
+                <div class="form-actions">
+                    <button class="btn btn-primary" id="contactVerify" type="button" disabled>Verify</button>
+                    <button class="btn btn-outline-secondary" id="contactVerifyCancel" type="button">Cancel</button>
+                </div>
+            </div>
+        </section>
+    </main>
+{% endblock %}
+
+{% block scripts %}
+    <script src="{{ url_for('static', filename='forms/contact.js') }}"></script>
+{% endblock %}
