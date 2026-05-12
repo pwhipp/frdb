@@ -1,6 +1,14 @@
-const emailPattern = /^[^@\s]+@[^@\s]+\.[^@\s]+$/;
+const {
+    cancelVerification,
+    cleanVerificationCode,
+    emailPattern,
+    postForm,
+    setFormEnabled,
+    setVerifyButtonState,
+    verificationStatus,
+} = window.FRDBVerification;
+
 let proposalRequestId = "";
-let proposalCodeCheck = 0;
 
 const proposalForm = document.getElementById("proposalForm");
 const proposalEmail = document.getElementById("proposalEmail");
@@ -17,13 +25,9 @@ proposalForm.addEventListener("input", updateProposalState);
 proposalForm.addEventListener("change", updateProposalState);
 proposalCancel.addEventListener("click", resetProposalForm);
 proposalVerifyCancel.addEventListener("click", cancelProposalVerification);
-proposalCode.addEventListener("input", async () => {
-    proposalCode.value = proposalCode.value.replace(/\D/g, "").slice(0, 5);
-    const checkId = ++proposalCodeCheck;
-    proposalVerify.disabled = true;
-    if (proposalCode.value.length === 5) {
-        proposalVerify.disabled = !(await checkCode(proposalRequestId, proposalCode.value, checkId));
-    }
+proposalCode.addEventListener("input", () => {
+    proposalCode.value = cleanVerificationCode(proposalCode.value);
+    setVerifyButtonState(proposalVerify, proposalRequestId, proposalCode.value);
 });
 
 proposalForm.addEventListener("submit", async (event) => {
@@ -69,11 +73,7 @@ function updateProposalState() {
 }
 
 async function cancelProposalVerification() {
-    if (proposalRequestId) {
-        const formData = new FormData();
-        formData.set("request_id", proposalRequestId);
-        await postForm("/api/verification/cancel", formData);
-    }
+    await cancelVerification(proposalRequestId);
     resetProposalForm();
 }
 
@@ -91,42 +91,6 @@ function resetProposalForm() {
 
 function setStatus(message) {
     proposalStatus.textContent = message || "";
-}
-
-function verificationStatus(data) {
-    if (data.verification_code) {
-        return `Local verification code: ${data.verification_code}`;
-    }
-    return "A verification code has been emailed to you.";
-}
-
-function setFormEnabled(form, enabled) {
-    for (const element of form.elements) {
-        element.disabled = !enabled;
-    }
-}
-
-async function postForm(url, formData) {
-    try {
-        const response = await fetch(url, {
-            method: "POST",
-            body: formData,
-        });
-        const data = await response.json();
-        return response.ok
-            ? { ok: true, data }
-            : { ok: false, error: data.error || "Request failed." };
-    } catch {
-        return { ok: false, error: "Network request failed." };
-    }
-}
-
-async function checkCode(requestId, code, checkId) {
-    const formData = new FormData();
-    formData.set("request_id", requestId);
-    formData.set("code", code);
-    const response = await postForm("/api/verification/check", formData);
-    return checkId === proposalCodeCheck && response.ok && response.data.verified;
 }
 
 updateProposalState();

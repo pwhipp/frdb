@@ -40,12 +40,6 @@ def pop_verified(request_id: str, code: str) -> dict | None:
     return pending.payload
 
 
-def check_verification(request_id: str, code: str) -> bool:
-    cleanup_expired()
-    pending = pending_verifications.get(request_id)
-    return pending is not None and pending.code == code
-
-
 def cancel_verification(request_id: str) -> None:
     pending_verifications.pop(request_id, None)
 

@@ -4,7 +4,6 @@ from frdb import (
     CONTACT_RECIPIENT,
     EmailDeliveryError,
     cancel_verification,
-    check_verification,
     create_verification,
     load_research_data,
     pop_verified,
@@ -135,17 +134,6 @@ def cancel_pending_verification():
     if request_id:
         cancel_verification(request_id)
     return jsonify({'message': 'Verification cancelled.'})
-
-
-@app.post('/api/verification/check')
-def check_pending_verification():
-    try:
-        request_id = validate_text(request.form.get('request_id', ''), 'Verification request', 64)
-        code = validate_code(request.form.get('code', ''))
-    except ValueError:
-        return jsonify({'verified': False})
-
-    return jsonify({'verified': check_verification(request_id, code)})
 
 
 def verification_start_response(request_id: str):

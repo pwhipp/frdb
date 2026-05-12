@@ -1,6 +1,16 @@
-const emailPattern = /^[^@\s]+@[^@\s]+\.[^@\s]+$/;
+const {
+    cancelVerification,
+    cleanVerificationCode,
+    postForm,
+    setFormEnabled,
+    setVerifyButtonState,
+    verificationStatus,
+} = window.FRDBVerification;
+
+const CONTACT_SUBMIT_COOLDOWN_MS = 10000;
+
 let contactRequestId = "";
-let contactCodeCheck = 0;
+let lastContactSubmitAt = 0;
 
 const contactForm = document.getElementById("contactForm");
 const contactEmail = document.getElementById("contactEmail");
@@ -15,21 +25,29 @@ const contactVerify = document.getElementById("contactVerify");
 const contactVerifyCancel = document.getElementById("contactVerifyCancel");
 
 contactForm.addEventListener("input", updateContactState);
+contactForm.addEventListener("change", updateContactState);
 contactSubject.addEventListener("input", () => updateCounter("subjectCount", contactSubject.value.length));
 contactMessage.addEventListener("input", () => updateCounter("messageCount", contactMessage.value.length));
 contactCancel.addEventListener("click", resetContactForm);
 contactVerifyCancel.addEventListener("click", cancelContactVerification);
-contactCode.addEventListener("input", async () => {
-    contactCode.value = contactCode.value.replace(/\D/g, "").slice(0, 5);
-    const checkId = ++contactCodeCheck;
-    contactVerify.disabled = true;
-    if (contactCode.value.length === 5) {
-        contactVerify.disabled = !(await checkCode(contactRequestId, contactCode.value, checkId));
-    }
+contactCode.addEventListener("input", () => {
+    contactCode.value = cleanVerificationCode(contactCode.value);
+    setVerifyButtonState(contactVerify, contactRequestId, contactCode.value);
 });
 
 contactForm.addEventListener("submit", async (event) => {
     event.preventDefault();
+    if (!isContactFormReady()) {
+        updateContactState();
+        return;
+    }
+    const remainingSeconds = contactSubmitCooldownRemaining();
+    if (remainingSeconds > 0) {
+        setStatus(`You must wait ${remainingSeconds} seconds before submitting again`);
+        return;
+    }
+
+    lastContactSubmitAt = Date.now();
     setStatus("Sending verification code...");
     const response = await postForm("/api/contact/start", new FormData(contactForm));
     if (!response.ok) {
@@ -59,8 +77,13 @@ contactVerify.addEventListener("click", async () => {
 });
 
 function updateContactState() {
-    contactSubmit.disabled = !(
-        emailPattern.test(contactEmail.value.trim())
+    contactSubmit.disabled = !isContactFormReady();
+}
+
+function isContactFormReady() {
+    return (
+        contactEmail.value.trim().length > 0
+        && contactEmail.value.trim().length <= 254
         && contactSubject.value.trim().length > 0
         && contactSubject.value.trim().length <= 132
         && contactMessage.value.trim().length > 0
@@ -68,12 +91,13 @@ function updateContactState() {
     );
 }
 
+function contactSubmitCooldownRemaining() {
+    const elapsed = Date.now() - lastContactSubmitAt;
+    return Math.max(0, Math.ceil((CONTACT_SUBMIT_COOLDOWN_MS - elapsed) / 1000));
+}
+
 async function cancelContactVerification() {
-    if (contactRequestId) {
-        const formData = new FormData();
-        formData.set("request_id", contactRequestId);
-        await postForm("/api/verification/cancel", formData);
-    }
+    await cancelVerification(contactRequestId);
     resetContactForm();
 }
 
@@ -95,44 +119,8 @@ function setStatus(message) {
     contactStatus.textContent = message || "";
 }
 
-function verificationStatus(data) {
-    if (data.verification_code) {
-        return `Local verification code: ${data.verification_code}`;
-    }
-    return "A verification code has been emailed to you.";
-}
-
 function updateCounter(id, count) {
     document.getElementById(id).textContent = count;
-}
-
-function setFormEnabled(form, enabled) {
-    for (const element of form.elements) {
-        element.disabled = !enabled;
-    }
-}
-
-async function postForm(url, formData) {
-    try {
-        const response = await fetch(url, {
-            method: "POST",
-            body: formData,
-        });
-        const data = await response.json();
-        return response.ok
-            ? { ok: true, data }
-            : { ok: false, error: data.error || "Request failed." };
-    } catch {
-        return { ok: false, error: "Network request failed." };
-    }
-}
-
-async function checkCode(requestId, code, checkId) {
-    const formData = new FormData();
-    formData.set("request_id", requestId);
-    formData.set("code", code);
-    const response = await postForm("/api/verification/check", formData);
-    return checkId === contactCodeCheck && response.ok && response.data.verified;
 }
 
 updateContactState();
