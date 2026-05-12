@@ -1,9 +1,20 @@
 from flask import Flask, jsonify, render_template, request, send_from_directory
 
-from frdb_forms import CONTACT_RECIPIENT, save_verified_upload, validate_code, validate_email, validate_text
-from frdb_data import load_research_data
-from frdb_mail import EmailDeliveryError, send_email
-from frdb_verification import cancel_verification, check_verification, create_verification, pop_verified
+from frdb import (
+    CONTACT_RECIPIENT,
+    EmailDeliveryError,
+    cancel_verification,
+    check_verification,
+    create_verification,
+    expose_verification_codes,
+    load_research_data,
+    pop_verified,
+    save_verified_upload,
+    send_email,
+    validate_code,
+    validate_email,
+    validate_text,
+)
 
 app = Flask(__name__)
 
@@ -54,7 +65,7 @@ def start_contact():
     except EmailDeliveryError as error:
         return jsonify({'error': str(error)}), 503
 
-    return jsonify({'request_id': request_id})
+    return verification_start_response(request_id, code)
 
 
 @app.post('/api/contact/verify')
@@ -96,7 +107,7 @@ def start_proposal():
     except EmailDeliveryError as error:
         return jsonify({'error': str(error)}), 503
 
-    return jsonify({'request_id': request_id})
+    return verification_start_response(request_id, code)
 
 
 @app.post('/api/propose/verify')
@@ -136,6 +147,13 @@ def check_pending_verification():
         return jsonify({'verified': False})
 
     return jsonify({'verified': check_verification(request_id, code)})
+
+
+def verification_start_response(request_id: str, code: str):
+    payload = {'request_id': request_id}
+    if expose_verification_codes():
+        payload['verification_code'] = code
+    return jsonify(payload)
 
 
 if __name__ == '__main__':

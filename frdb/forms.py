@@ -8,7 +8,7 @@ from werkzeug.utils import secure_filename
 
 
 CONTACT_RECIPIENT = "janewhipp@gmail.com"
-UPLOAD_DIR = Path(__file__).resolve().parent / "uploads"
+UPLOAD_DIR = Path(__file__).resolve().parents[1] / "uploads"
 EMAIL_RE = re.compile(r"^[^@\s]+@[^@\s]+\.[^@\s]+$")
 
 
