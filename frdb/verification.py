@@ -6,7 +6,8 @@ import secrets
 import uuid
 
 
-CODE_TTL = timedelta(minutes=15)
+CODE_TTL_MINUTES = 15
+CODE_TTL = timedelta(minutes=CODE_TTL_MINUTES)
 
 
 @dataclass

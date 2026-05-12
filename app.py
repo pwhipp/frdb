@@ -2,6 +2,7 @@ from flask import Flask, jsonify, render_template, request, send_from_directory
 
 from local_settings import CONTACT_RECIPIENT
 from frdb import (
+    CODE_TTL_MINUTES,
     EmailDeliveryError,
     cancel_verification,
     create_verification,
@@ -48,16 +49,11 @@ def start_contact():
         email = validate_email(request.form.get('email', ''))
         subject = validate_text(request.form.get('subject', ''), 'Subject', 132)
         message = validate_text(request.form.get('message', ''), 'Message', 1000)
-        request_id, code = create_verification({
+        request_id = start_email_verification('contact', {
             'email': email,
             'subject': subject,
             'message': message,
         })
-        send_email(
-            email,
-            'FRDB contact verification code',
-            f'Your FRDB contact verification code is {code}.\n\nThis code expires in 15 minutes.',
-        )
     except ValueError as error:
         return jsonify({'error': str(error)}), 400
     except EmailDeliveryError as error:
@@ -94,12 +90,7 @@ def verify_contact():
 def start_proposal():
     try:
         email = validate_email(request.form.get('email', ''))
-        request_id, code = create_verification({'email': email})
-        send_email(
-            email,
-            'FRDB proposal verification code',
-            f'Your FRDB proposal verification code is {code}.\n\nThis code expires in 15 minutes.',
-        )
+        request_id = start_email_verification('proposal', {'email': email})
     except ValueError as error:
         return jsonify({'error': str(error)}), 400
     except EmailDeliveryError as error:
@@ -138,6 +129,23 @@ def cancel_pending_verification():
 
 def verification_start_response(request_id: str):
     return jsonify({'request_id': request_id})
+
+
+def start_email_verification(purpose: str, payload: dict) -> str:
+    request_id, code = create_verification(payload)
+    send_email(
+        payload['email'],
+        f'FRDB {purpose} verification code',
+        verification_email_body(purpose, code),
+    )
+    return request_id
+
+
+def verification_email_body(purpose: str, code: str) -> str:
+    return (
+        f'Your FRDB {purpose} verification code is {code}.'
+        f'\n\nThis code expires in {CODE_TTL_MINUTES} minutes.'
+    )
 
 
 if __name__ == '__main__':
