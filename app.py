@@ -42,6 +42,11 @@ def contact_us():
     return render_template('contact_us.html')
 
 
+@app.route('/about')
+def about():
+    return render_template('about.html')
+
+
 @app.route('/assets/example.xlsx')
 def example_workbook():
     return send_from_directory('assets', 'example.xlsx', as_attachment=True)
