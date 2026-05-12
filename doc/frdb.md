@@ -56,44 +56,30 @@ If templating is required, use jinja2.
 FRDB sends contact and proposal verification emails through Amazon SES SMTP in
 `ap-southeast-2`.
 
-The SES endpoint, port, and STARTTLS setting are fixed in `frdb/mail.py`.
+The SES endpoint, port, STARTTLS setting, and timeout defaults live in
+`frdb/mail/config.py`.
 
-For SES delivery, set the SES SMTP credentials:
+For SES delivery, create `local_settings.py` from `local_settings.example.py`.
+This file is ignored by git and is the source of truth for secret mail
+settings.
 
-- `FRDB_SES_SMTP_USERNAME`
-- `FRDB_SES_SMTP_PASSWORD`
-
-The sender defaults to `no-reply@qclub.au`. Override it with `FRDB_SES_FROM`.
+Set `MAIL_CONFIG.username` and `MAIL_CONFIG.password` to the SES SMTP
+credentials, and set `MAIL_CONFIG.sender` to a verified SES sender.
 
 To send a real test email locally:
 
 ```bash
-cp deploy/frdb.env.example /tmp/frdb.env
-$EDITOR /tmp/frdb.env
-set -a
-. /tmp/frdb.env
-set +a
+cp local_settings.example.py local_settings.py
+$EDITOR local_settings.py
 .venv/bin/python script/send_test_email.py you@example.com
 ```
 
 To test the full local verification flow with real email delivery:
 
 ```bash
-set -a
-. /tmp/frdb.env
-set +a
 .venv/bin/python app.py
 ```
 
 Open `http://127.0.0.1:5000/contact-us` or
 `http://127.0.0.1:5000/propose-additions`, submit the form, then enter the code
 from the delivered email.
-
-For local form-flow testing without sending real email, run with:
-
-```bash
-FRDB_MAIL_BACKEND=console .venv/bin/python app.py
-```
-
-The console backend writes the generated email, including the verification code, to the server output.
-The contact and proposal pages also display the verification code when this backend is active.

@@ -38,6 +38,11 @@ run_cmd sudo -u frdb -H bash -lc "cd ${FRDB_REPO_DIR} \
 section "Preparing writable upload directory as frdb user"
 run_cmd sudo -u frdb -H bash -lc "mkdir -p ${FRDB_REPO_DIR}/uploads"
 
+section "Checking local settings as frdb user"
+run_cmd sudo -u frdb -H bash -lc "cd ${FRDB_REPO_DIR} \
+  && test -f local_settings.py \
+  && .venv/bin/python -c 'from local_settings import MAIL_CONFIG; assert MAIL_CONFIG.username; assert MAIL_CONFIG.password; assert MAIL_CONFIG.sender'"
+
 section "Starting services as invoking user"
 run_cmd sudo systemctl start frdb
 run_cmd sudo systemctl restart nginx

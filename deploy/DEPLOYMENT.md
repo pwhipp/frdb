@@ -35,36 +35,34 @@ Ensure the upload directory exists and is owned by the app user:
 sudo -u frdb -H bash -lc "mkdir -p /home/frdb/frdb/uploads"
 ```
 
-## 3) Email environment
+## 3) Application settings
 
 FRDB sends verification codes for contact and proposal forms through Amazon SES
-using the SES SMTP endpoint in `ap-southeast-2`. The host, port, and STARTTLS
-setting are fixed in the app so the production environment file only contains
-the SES sender and SES SMTP credentials.
+using the SES SMTP endpoint in `ap-southeast-2`. The host, port, STARTTLS
+setting, and timeout defaults live in `frdb/mail/config.py`.
+
+The deployment uses `/home/frdb/frdb/local_settings.py` as the required source
+of truth for secret mail settings. It is intentionally ignored by git.
 
 ```bash
-sudo install -d -o root -g root -m 0755 /etc/frdb
-sudo install -o root -g root -m 0640 /home/frdb/frdb/deploy/frdb.env.example /etc/frdb/frdb.env
-sudoedit /etc/frdb/frdb.env
+sudo -u frdb -H cp /home/frdb/frdb/local_settings.example.py /home/frdb/frdb/local_settings.py
+sudo chmod 0600 /home/frdb/frdb/local_settings.py
+sudo -u frdb -H "${EDITOR:-nano}" /home/frdb/frdb/local_settings.py
 ```
 
-Set `FRDB_SES_SMTP_USERNAME` and `FRDB_SES_SMTP_PASSWORD` to the SES SMTP
-credentials.
+Set `MAIL_CONFIG.username` and `MAIL_CONFIG.password` to the SES SMTP
+credentials, and set `MAIL_CONFIG.sender` to a verified SES sender.
 
-Before deploying, you can test the same mail path locally:
+Before deploying, verify that the settings file imports and can send mail:
 
 ```bash
-cp deploy/frdb.env.example /tmp/frdb.env
-$EDITOR /tmp/frdb.env
-set -a
-. /tmp/frdb.env
-set +a
+cd /home/frdb/frdb
 .venv/bin/python script/send_test_email.py you@example.com
 ```
 
 For the full local verification flow with real emails, run the app with those
-same environment variables, open `http://127.0.0.1:5000/contact-us`, and use the
-code delivered to your inbox.
+same settings, open `http://127.0.0.1:5000/contact-us`, and use the code
+delivered to your inbox.
 
 ## 4) systemd service
 
@@ -77,9 +75,9 @@ sudo systemctl enable --now frdb.service
 sudo systemctl status frdb.service
 ```
 
-The service runs as `frdb:frdb` and binds Gunicorn to `/home/frdb/frdb.sock`.
-This matches the simple socket pattern used by the other small services on the
-server.
+The service runs as `frdb:frdb`, imports `/home/frdb/frdb/local_settings.py`,
+and binds Gunicorn to `/home/frdb/frdb.sock`. This matches the simple socket
+pattern used by the other small services on the server.
 
 ## 5) Nginx configuration
 

@@ -8,7 +8,6 @@ Group=frdb
 WorkingDirectory=/home/frdb/frdb
 Environment=PYTHONUNBUFFERED=1
 Environment=PATH=/home/frdb/frdb/.venv/bin
-EnvironmentFile=-/etc/frdb/frdb.env
 ExecStart=/home/frdb/frdb/.venv/bin/gunicorn \
     --workers 2 \
     --bind unix:/home/frdb/frdb.sock \
