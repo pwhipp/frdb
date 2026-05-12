@@ -6,9 +6,6 @@ import time
 from werkzeug.datastructures import FileStorage
 from werkzeug.utils import secure_filename
 
-
-CONTACT_RECIPIENT = "janewhipp@gmail.com"
-UPLOAD_DIR = Path(__file__).resolve().parents[1] / "uploads"
 EMAIL_RE = re.compile(r"^[^@\s]+@[^@\s]+\.[^@\s]+$")
 
 
@@ -36,6 +33,8 @@ def validate_code(value: str) -> str:
 
 
 def save_verified_upload(upload: FileStorage, email: str) -> Path:
+    from local_settings import UPLOAD_DIR
+
     if not upload or not upload.filename:
         raise ValueError("Upload an updated workbook.")
 

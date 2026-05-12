@@ -1,7 +1,7 @@
 from flask import Flask, jsonify, render_template, request, send_from_directory
 
+from local_settings import CONTACT_RECIPIENT
 from frdb import (
-    CONTACT_RECIPIENT,
     EmailDeliveryError,
     cancel_verification,
     create_verification,
