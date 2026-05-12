@@ -1,4 +1,5 @@
 (function () {
+    const submitCooldownMs = 10000;
     const emailPattern = /^[^@\s]+@[^@\s]+\.[^@\s]+$/;
 
     function cleanVerificationCode(value) {
@@ -20,6 +21,11 @@
         for (const element of form.elements) {
             element.disabled = !enabled;
         }
+    }
+
+    function submitCooldownRemaining(lastSubmitAt) {
+        const elapsed = Date.now() - lastSubmitAt;
+        return Math.max(0, Math.ceil((submitCooldownMs - elapsed) / 1000));
     }
 
     async function postForm(url, formData) {
@@ -54,6 +60,7 @@
         postForm,
         setFormEnabled,
         setVerifyButtonState,
+        submitCooldownRemaining,
         verificationStatus,
     };
 }());

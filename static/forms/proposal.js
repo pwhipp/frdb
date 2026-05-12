@@ -5,10 +5,12 @@ const {
     postForm,
     setFormEnabled,
     setVerifyButtonState,
+    submitCooldownRemaining,
     verificationStatus,
 } = window.FRDBVerification;
 
 let proposalRequestId = "";
+let lastProposalSubmitAt = 0;
 
 const proposalForm = document.getElementById("proposalForm");
 const proposalEmail = document.getElementById("proposalEmail");
@@ -32,6 +34,17 @@ proposalCode.addEventListener("input", () => {
 
 proposalForm.addEventListener("submit", async (event) => {
     event.preventDefault();
+    if (!isProposalFormReady()) {
+        updateProposalState();
+        return;
+    }
+    const remainingSeconds = submitCooldownRemaining(lastProposalSubmitAt);
+    if (remainingSeconds > 0) {
+        setStatus(`You must wait ${remainingSeconds} seconds before submitting again`);
+        return;
+    }
+
+    lastProposalSubmitAt = Date.now();
     setStatus("Sending verification code...");
     const formData = new FormData();
     formData.set("email", proposalEmail.value);
@@ -64,8 +77,12 @@ proposalVerify.addEventListener("click", async () => {
 });
 
 function updateProposalState() {
+    proposalSubmit.disabled = !isProposalFormReady();
+}
+
+function isProposalFormReady() {
     const file = proposalWorkbook.files[0];
-    proposalSubmit.disabled = !(
+    return (
         emailPattern.test(proposalEmail.value.trim())
         && file
         && file.name.toLowerCase().endsWith(".xlsx")

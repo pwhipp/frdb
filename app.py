@@ -1,3 +1,5 @@
+import time
+
 from flask import Flask, jsonify, render_template, request, send_from_directory
 
 from local_settings import CONTACT_RECIPIENT
@@ -16,6 +18,13 @@ from frdb import (
 )
 
 app = Flask(__name__)
+
+VERIFICATION_EMAIL_COOLDOWN_SECONDS = 10
+verification_email_last_sent_at: dict[str, float] = {}
+
+
+class VerificationEmailCooldownError(Exception):
+    pass
 
 
 @app.route('/')
@@ -54,6 +63,8 @@ def start_contact():
             'subject': subject,
             'message': message,
         })
+    except VerificationEmailCooldownError as error:
+        return jsonify({'error': str(error)}), 429
     except ValueError as error:
         return jsonify({'error': str(error)}), 400
     except EmailDeliveryError as error:
@@ -91,6 +102,8 @@ def start_proposal():
     try:
         email = validate_email(request.form.get('email', ''))
         request_id = start_email_verification('proposal', {'email': email})
+    except VerificationEmailCooldownError as error:
+        return jsonify({'error': str(error)}), 429
     except ValueError as error:
         return jsonify({'error': str(error)}), 400
     except EmailDeliveryError as error:
@@ -113,8 +126,11 @@ def verify_proposal():
 
     try:
         destination = save_verified_upload(request.files.get('workbook'), payload['email'])
+        send_proposal_upload_notification(destination.name, payload['email'])
     except ValueError as error:
         return jsonify({'error': str(error)}), 400
+    except EmailDeliveryError as error:
+        return jsonify({'error': str(error)}), 503
 
     return jsonify({'message': f'Workbook uploaded for review: {destination.name}'})
 
@@ -132,12 +148,14 @@ def verification_start_response(request_id: str):
 
 
 def start_email_verification(purpose: str, payload: dict) -> str:
+    enforce_verification_email_cooldown()
     request_id, code = create_verification(payload)
     send_email(
         payload['email'],
         f'FRDB {purpose} verification code',
         verification_email_body(purpose, code),
     )
+    verification_email_last_sent_at[verification_cooldown_key()] = time.monotonic()
     return request_id
 
 
@@ -145,6 +163,30 @@ def verification_email_body(purpose: str, code: str) -> str:
     return (
         f'Your FRDB {purpose} verification code is {code}.'
         f'\n\nThis code expires in {CODE_TTL_MINUTES} minutes.'
+    )
+
+
+def enforce_verification_email_cooldown() -> None:
+    last_sent_at = verification_email_last_sent_at.get(verification_cooldown_key())
+    if last_sent_at is None:
+        return
+
+    remaining_seconds = VERIFICATION_EMAIL_COOLDOWN_SECONDS - (time.monotonic() - last_sent_at)
+    if remaining_seconds > 0:
+        raise VerificationEmailCooldownError(
+            f'Wait {int(remaining_seconds) + 1} seconds before requesting another verification code.'
+        )
+
+
+def verification_cooldown_key() -> str:
+    return request.remote_addr or 'unknown'
+
+
+def send_proposal_upload_notification(filename: str, uploader_email: str) -> None:
+    send_email(
+        CONTACT_RECIPIENT,
+        'FRDB proposal workbook uploaded',
+        f'Workbook uploaded for review: {filename}\n\nUploader: {uploader_email}',
     )
 
 

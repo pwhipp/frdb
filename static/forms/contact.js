@@ -4,10 +4,9 @@ const {
     postForm,
     setFormEnabled,
     setVerifyButtonState,
+    submitCooldownRemaining,
     verificationStatus,
 } = window.FRDBVerification;
-
-const CONTACT_SUBMIT_COOLDOWN_MS = 10000;
 
 let contactRequestId = "";
 let lastContactSubmitAt = 0;
@@ -41,7 +40,7 @@ contactForm.addEventListener("submit", async (event) => {
         updateContactState();
         return;
     }
-    const remainingSeconds = contactSubmitCooldownRemaining();
+    const remainingSeconds = submitCooldownRemaining(lastContactSubmitAt);
     if (remainingSeconds > 0) {
         setStatus(`You must wait ${remainingSeconds} seconds before submitting again`);
         return;
@@ -89,11 +88,6 @@ function isContactFormReady() {
         && contactMessage.value.trim().length > 0
         && contactMessage.value.trim().length <= 1000
     );
-}
-
-function contactSubmitCooldownRemaining() {
-    const elapsed = Date.now() - lastContactSubmitAt;
-    return Math.max(0, Math.ceil((CONTACT_SUBMIT_COOLDOWN_MS - elapsed) / 1000));
 }
 
 async function cancelContactVerification() {

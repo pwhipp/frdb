@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+from datetime import datetime, timezone
+import json
 from pathlib import Path
 import re
 import time
@@ -47,4 +49,16 @@ def save_verified_upload(upload: FileStorage, email: str) -> Path:
     email_prefix = secure_filename(email.split("@", 1)[0]) or "submitter"
     destination = UPLOAD_DIR / f"{timestamp}-{email_prefix}-{filename}"
     upload.save(destination)
+    save_upload_metadata(destination, email)
     return destination
+
+
+def save_upload_metadata(destination: Path, email: str) -> None:
+    metadata = {
+        "uploader_email": email,
+        "uploaded_at": datetime.now(timezone.utc).isoformat(timespec="seconds"),
+    }
+    destination.with_name(f"{destination.name}.meta").write_text(
+        json.dumps(metadata, indent=4) + "\n",
+        encoding="utf-8",
+    )
