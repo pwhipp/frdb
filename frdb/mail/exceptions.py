@@ -1,0 +1,2 @@
+class EmailDeliveryError(RuntimeError):
+    pass

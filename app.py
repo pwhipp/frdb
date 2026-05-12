@@ -6,7 +6,6 @@ from frdb import (
     cancel_verification,
     check_verification,
     create_verification,
-    expose_verification_codes,
     load_research_data,
     pop_verified,
     save_verified_upload,
@@ -65,7 +64,7 @@ def start_contact():
     except EmailDeliveryError as error:
         return jsonify({'error': str(error)}), 503
 
-    return verification_start_response(request_id, code)
+    return verification_start_response(request_id)
 
 
 @app.post('/api/contact/verify')
@@ -107,7 +106,7 @@ def start_proposal():
     except EmailDeliveryError as error:
         return jsonify({'error': str(error)}), 503
 
-    return verification_start_response(request_id, code)
+    return verification_start_response(request_id)
 
 
 @app.post('/api/propose/verify')
@@ -149,11 +148,8 @@ def check_pending_verification():
     return jsonify({'verified': check_verification(request_id, code)})
 
 
-def verification_start_response(request_id: str, code: str):
-    payload = {'request_id': request_id}
-    if expose_verification_codes():
-        payload['verification_code'] = code
-    return jsonify(payload)
+def verification_start_response(request_id: str):
+    return jsonify({'request_id': request_id})
 
 
 if __name__ == '__main__':
