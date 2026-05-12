@@ -88,6 +88,42 @@ When making use of third party modules, use the available documentation and exam
 
 When implementing or modifying logic do not invent new mechanics unless explicitly requested.
 
+## Configuration Simplicity
+
+When the user provides or names a concrete configuration file, prefer using that file directly over introducing fallback layers, environment-variable compatibility, discovery helpers, or normalization machinery.
+
+Do not add support for multiple configuration mechanisms unless the user explicitly asks for it.
+
+If a local ignored settings file is the agreed source of truth:
+- make that file contain the final runtime shape where practical
+- import the configured object directly at the point it is needed
+- keep example settings in the same shape as the real settings file
+- avoid parallel variable names, compatibility shims, or migration paths unless required
+
+Robustness means clear failure from a missing or malformed required config, not defensive abstraction around unsupported config styles.
+
+## Avoid Premature Generalisation
+
+Before adding an abstraction, fallback, compatibility layer, or helper function, ask whether the current task requires more than one real use case.
+
+If there is only one real use case, implement that use case directly.
+
+Do not introduce:
+- unused backends
+- environment-variable fallbacks
+- dynamic module loading
+- config normalization layers
+- helper functions that only wrap one field lookup
+- support for hypothetical future settings shapes
+
+Prefer deleting obsolete behavior over preserving it behind inert functions.
+
+## User Suggestions Are Design Constraints
+
+When the user suggests a concrete simplification, treat it as a strong design constraint unless it conflicts with correctness.
+
+If deviating from the suggestion, explain why before implementing. Do not silently implement a broader or more flexible design than requested.
+
 ## Temporary Change Policy
 
 - Do not make temporary or stopgap behavior changes in code.
@@ -115,6 +151,16 @@ Rules:
 - New modal behavior requires extending the shared modal component, not bypassing it.
 
 ## Structure and Refactoring
+
+### Refactor Toward Intent
+
+When simplifying a confused module, prefer names and structure that reveal intent:
+- split by responsibility only when it makes the public API clearer
+- expose a small facade from `__init__.py` or the subsystem entrypoint
+- keep internal modules boring and specific, such as `config.py`, `exceptions.py`, and action-focused modules like `send_mail.py`
+- remove dead compatibility exports after updating callers
+
+A module should read as the story of the feature, not as a negotiation with possible future requirements.
 
 ### One Function - One Primary Responsibility
 
