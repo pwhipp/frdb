@@ -45,7 +45,7 @@ After modifying JavaScript, JSON, or python files:
 1. Run Python verification:
 
 ```bash
-.venv/bin/python -m compileall app.py frdb_data.py script data
+.venv/bin/python -m compileall app.py frdb script data
 .venv/bin/python - <<'PY'
 from app import app
 client = app.test_client()

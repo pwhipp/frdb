@@ -40,7 +40,7 @@ proposalForm.addEventListener("submit", async (event) => {
     proposalVerification.classList.remove("d-none");
     proposalSubmit.disabled = true;
     setFormEnabled(proposalForm, false);
-    setStatus("A verification code has been emailed to you.");
+    setStatus(verificationStatus(response.data));
 });
 
 proposalVerify.addEventListener("click", async () => {
@@ -91,6 +91,13 @@ function resetProposalForm() {
 
 function setStatus(message) {
     proposalStatus.textContent = message || "";
+}
+
+function verificationStatus(data) {
+    if (data.verification_code) {
+        return `Local verification code: ${data.verification_code}`;
+    }
+    return "A verification code has been emailed to you.";
 }
 
 function setFormEnabled(form, enabled) {

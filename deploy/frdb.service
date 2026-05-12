@@ -1,0 +1,22 @@
+[Unit]
+Description=FRDB Flask app (Gunicorn)
+After=network.target
+
+[Service]
+User=frdb
+Group=frdb
+WorkingDirectory=/home/frdb/frdb
+Environment=PYTHONUNBUFFERED=1
+Environment=PATH=/home/frdb/frdb/.venv/bin
+EnvironmentFile=-/etc/frdb/frdb.env
+ExecStart=/home/frdb/frdb/.venv/bin/gunicorn \
+    --workers 2 \
+    --bind unix:/home/frdb/frdb.sock \
+    --access-logfile /home/frdb/gunicorn_access.log \
+    --error-logfile /home/frdb/gunicorn_error.log \
+    app:app
+Restart=on-failure
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target

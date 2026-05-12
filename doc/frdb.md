@@ -50,3 +50,50 @@ Use the latest bootstrap for presentation.
 The table is to look familiar to users of excel or calc and the columns should be initialized at an appropriate width with the contents wrapping for results.
 
 If templating is required, use jinja2.
+
+## Email
+
+FRDB sends contact and proposal verification emails through Amazon SES SMTP in
+`ap-southeast-2`.
+
+The SES endpoint, port, and STARTTLS setting are fixed in `frdb/mail.py`.
+
+For SES delivery, set the SES SMTP credentials:
+
+- `FRDB_SES_SMTP_USERNAME`
+- `FRDB_SES_SMTP_PASSWORD`
+
+The sender defaults to `no-reply@qclub.au`. Override it with `FRDB_SES_FROM`.
+
+To send a real test email locally:
+
+```bash
+cp deploy/frdb.env.example /tmp/frdb.env
+$EDITOR /tmp/frdb.env
+set -a
+. /tmp/frdb.env
+set +a
+.venv/bin/python script/send_test_email.py you@example.com
+```
+
+To test the full local verification flow with real email delivery:
+
+```bash
+set -a
+. /tmp/frdb.env
+set +a
+.venv/bin/python app.py
+```
+
+Open `http://127.0.0.1:5000/contact-us` or
+`http://127.0.0.1:5000/propose-additions`, submit the form, then enter the code
+from the delivered email.
+
+For local form-flow testing without sending real email, run with:
+
+```bash
+FRDB_MAIL_BACKEND=console .venv/bin/python app.py
+```
+
+The console backend writes the generated email, including the verification code, to the server output.
+The contact and proposal pages also display the verification code when this backend is active.

@@ -40,7 +40,7 @@ contactForm.addEventListener("submit", async (event) => {
     contactVerification.classList.remove("d-none");
     contactSubmit.disabled = true;
     setFormEnabled(contactForm, false);
-    setStatus("A verification code has been emailed to you.");
+    setStatus(verificationStatus(response.data));
 });
 
 contactVerify.addEventListener("click", async () => {
@@ -93,6 +93,13 @@ function resetContactForm() {
 
 function setStatus(message) {
     contactStatus.textContent = message || "";
+}
+
+function verificationStatus(data) {
+    if (data.verification_code) {
+        return `Local verification code: ${data.verification_code}`;
+    }
+    return "A verification code has been emailed to you.";
 }
 
 function updateCounter(id, count) {
