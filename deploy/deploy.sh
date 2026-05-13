@@ -30,7 +30,7 @@ run_cmd id frdb
 
 section "Updating Python dependencies as frdb user"
 run_cmd sudo -u frdb -H bash -lc "cd ${FRDB_REPO_DIR} \
-  && python3 -m venv .venv \
+  && python3.12 -m venv .venv \
   && . .venv/bin/activate \
   && pip install --upgrade pip \
   && pip install -r deploy/requirements.txt"
