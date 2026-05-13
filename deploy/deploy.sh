@@ -16,6 +16,10 @@ section() {
 FRDB_REPO_DIR="${FRDB_REPO_DIR:-/home/frdb/frdb}"
 FRDB_BASE_URL="${FRDB_BASE_URL:-https://frdb.qclub.au}"
 FRDB_API_URL="${FRDB_API_URL:-${FRDB_BASE_URL}/api/research-data}"
+FRDB_SERVICE_PATH="${FRDB_SERVICE_PATH:-/etc/systemd/system/frdb.service}"
+FRDB_NGINX_SITE="${FRDB_NGINX_SITE:-frdb}"
+FRDB_NGINX_AVAILABLE_PATH="${FRDB_NGINX_AVAILABLE_PATH:-/etc/nginx/sites-available/${FRDB_NGINX_SITE}}"
+FRDB_NGINX_ENABLED_PATH="${FRDB_NGINX_ENABLED_PATH:-/etc/nginx/sites-enabled/${FRDB_NGINX_SITE}}"
 
 section "Stopping frdb service as invoking user"
 if systemctl is-active --quiet frdb; then
@@ -42,6 +46,16 @@ section "Checking local settings as frdb user"
 run_cmd sudo -u frdb -H bash -lc "cd ${FRDB_REPO_DIR} \
   && test -f local_settings.py \
   && .venv/bin/python -c 'from local_settings import MAIL_CONFIG; assert MAIL_CONFIG.username; assert MAIL_CONFIG.password; assert MAIL_CONFIG.sender'"
+
+section "Installing and enabling systemd service as invoking user"
+run_cmd sudo install -m 0644 "${FRDB_REPO_DIR}/deploy/frdb.service" "${FRDB_SERVICE_PATH}"
+run_cmd sudo systemctl daemon-reload
+run_cmd sudo systemctl enable frdb.service
+
+section "Linking and enabling Nginx site as invoking user"
+run_cmd sudo ln -sfn "${FRDB_REPO_DIR}/deploy/nginx.conf" "${FRDB_NGINX_AVAILABLE_PATH}"
+run_cmd sudo ln -sfn "${FRDB_NGINX_AVAILABLE_PATH}" "${FRDB_NGINX_ENABLED_PATH}"
+run_cmd sudo nginx -t
 
 section "Starting services as invoking user"
 run_cmd sudo systemctl start frdb
