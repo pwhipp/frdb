@@ -4,7 +4,7 @@ After=network.target
 
 [Service]
 User=frdb
-Group=frdb
+Group=www-data
 WorkingDirectory=/home/frdb/frdb
 Environment=PYTHONUNBUFFERED=1
 Environment=PATH=/home/frdb/frdb/.venv/bin
