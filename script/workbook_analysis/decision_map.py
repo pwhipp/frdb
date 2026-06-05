@@ -68,11 +68,11 @@ SCORING_README = [
 README_ITEMS = [
     {
         "item": "Purpose",
-        "description": "Decision map: biological material versus porous/non-porous surface, with ranked recovery techniques and study counts.",
+        "description": "Use this decision map to select the most appropriate recovery method given the expected biological material and substrate. The map may also be used to highlight areas where studies are currently lacking.",
     },
     {
         "item": "Detailed evidence",
-        "description": "Technique rankings contain scores, wins/losses/ties, significant wins/losses, supporting authors, and source-row trace notes. Scored comparisons show how each extracted comparison was normalized.",
+        "description": "Technique rankings contain scores, wins/losses/ties, significant wins/losses, supporting authors, and source-row trace notes. Scored comparisons show how each extracted comparison was normalized. Scores and wins/losses/ties are linked to the underlying tables.",
     },
     {
         "item": "Important caveat",
