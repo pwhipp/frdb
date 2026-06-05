@@ -8,17 +8,17 @@ REPO_ROOT = Path(__file__).resolve().parent.parent
 if str(REPO_ROOT) not in sys.path:
     sys.path.insert(0, str(REPO_ROOT))
 
-from workbook_analysis.excel import parse_workbook
-from workbook_analysis.output import default_output_folder, merge_existing_rows, write_analysis_json
+from workbook_analysis.output import assign_publication_ids, default_output_folder, write_data_files
+from workbook_analysis.workbook import parse_workbook
 
 
 def main() -> None:
     arguments = parse_args()
     workbook_path = arguments.workbook.resolve()
     output_folder = (arguments.output_folder or default_output_folder(REPO_ROOT)).resolve()
-    generated_rows = parse_workbook(workbook_path)
-    rows = merge_existing_rows(output_folder, workbook_path, generated_rows)
-    write_analysis_json(output_folder, rows, arguments.compact)
+    parsed_workbook = parse_workbook(workbook_path)
+    rows = assign_publication_ids(output_folder, workbook_path, parsed_workbook.rows)
+    write_data_files(output_folder, rows, parsed_workbook.publication_filters, arguments.compact)
     print(f"Wrote {len(rows)} publications to {output_folder}")
 
 

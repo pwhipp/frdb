@@ -9,10 +9,6 @@ from zipfile import ZipFile
 from .rules import (
     HEADER_FIELDS,
     REQUIRED_FIELDS,
-    canonical_biological_material,
-    canonical_equipment,
-    canonical_recovery_methods,
-    canonical_substrate_types,
     clean_text,
     normalise_header,
     replicate_band_key,
@@ -30,7 +26,7 @@ class CellValue:
     text: str
 
 
-def parse_workbook(path: Path) -> list[dict]:
+def read_excel(path: Path) -> list[dict]:
     with ZipFile(path) as workbook:
         shared_strings = read_shared_strings(workbook)
         workbook_xml = ET.fromstring(workbook.read("xl/workbook.xml"))
@@ -209,11 +205,6 @@ def build_rows(
 
         author_reference = f"{authors_column}{row_number}"
         row["source_url"] = hyperlinks.get(author_reference, "")
-        row["recovery_methods_filter"] = canonical_recovery_methods(row["recovery_methods"])
-        row["equipment_tested_filter"] = canonical_equipment(row["equipment_tested"], row["recovery_methods"])
-        row["biological_material_filter"] = canonical_biological_material(row["biological_material"])
-        row["substrate_type_filter"] = canonical_substrate_types(row["substrate_type"])
-
         statistical_reference = f"{statistical_column}{row_number}"
         fill_id = style_fill_ids[cell_styles.get(statistical_reference, 0)]
         row["replicate_band"] = replicate_bands.get(fill_id, "")

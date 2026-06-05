@@ -19,37 +19,72 @@ HEADER_FIELDS = {
 
 REQUIRED_FIELDS = tuple(HEADER_FIELDS.values())
 
-RECOVERY_METHOD_RULES = (
-    ("swabbing", "Swabbing"),
-    ("tape-lifting", "Tape-lifting"),
-    ("tape lifting", "Tape-lifting"),
-    ("vacuum", "Vacuum"),
-    ("excising", "Excising"),
-    ("soaking", "Soaking"),
-    ("direct lysis", "Direct lysis"),
-    ("direct pcr", "Direct PCR"),
-    ("fta paper-scraping", "FTA paper-scraping"),
-    ("scraping", "Scraping"),
-    ("plasti dip", "Plasti dip"),
-    ("untreated filter paper", "Untreated filter paper"),
-    ("direct extraction", "Direct extraction"),
-    ("cell elution", "Cell elution"),
+RECOVERY_METHOD_ORDER = (
+    "Tape lift",
+    "Moist swab",
+    "Wet swab",
+    "Wet-dry swab",
+    "Swab (unspecified)",
+    "Other",
 )
 
-RECOVERY_METHOD_ORDER = (
-    "Swabbing",
-    "Tape-lifting",
-    "Vacuum",
-    "Excising",
-    "Soaking",
-    "Direct lysis",
-    "Direct PCR",
-    "FTA paper-scraping",
-    "Scraping",
-    "Plasti dip",
-    "Untreated filter paper",
-    "Direct extraction",
-    "Cell elution",
+TAPE_LIFT_TOKENS = (
+    "tape-lifting",
+    "tape lifting",
+    "tape-lift",
+    "tape lift",
+)
+
+MOIST_SWAB_TOKENS = (
+    "moist",
+)
+
+WET_SWAB_TOKENS = (
+    "wet-wet",
+    "wet wet",
+    "wet ss",
+    "wet (ss)",
+    "ss (wet)",
+    "ss - wet",
+    "wetting agents",
+    "swabs with",
+)
+
+WET_SWAB_ABBREVIATIONS = (
+    "ws",
+)
+
+WET_DRY_SWAB_TOKENS = (
+    "wet-dry",
+    "wet dry",
+    "wet/dry",
+    "wet and dry",
+    "double swab",
+    "ds technique",
+    "ds method",
+    "ds with",
+    "wet ds",
+    "dws technique",
+    "dss method",
+)
+
+WET_DRY_SWAB_ABBREVIATIONS = (
+    "dws",
+    "dss",
+)
+
+OTHER_RECOVERY_METHOD_TOKENS = (
+    "vacuum",
+    "excising",
+    "soaking",
+    "direct lysis",
+    "direct pcr",
+    "fta paper-scraping",
+    "scraping",
+    "plasti dip",
+    "untreated filter paper",
+    "direct extraction",
+    "cell elution",
 )
 
 EQUIPMENT_RULES = (
@@ -91,19 +126,24 @@ SUBSTRATE_TYPE_ORDER = ("Porous", "Non-porous", "n/a")
 
 FILTER_HIGHLIGHT_TERMS = {
     "recovery_methods": {
-        "Swabbing": ["swabbing", "swab"],
-        "Tape-lifting": ["tape-lifting", "tape lifting", "tape-lift", "tape lift"],
-        "Vacuum": ["vacuum", "m-vac"],
-        "Excising": ["excising", "excise"],
-        "Soaking": ["soaking", "soak"],
-        "Direct lysis": ["direct lysis"],
-        "Direct PCR": ["direct pcr"],
-        "FTA paper-scraping": ["fta paper-scraping", "fta", "paper-scraping"],
-        "Scraping": ["scraping", "scrape"],
-        "Plasti dip": ["plasti dip"],
-        "Untreated filter paper": ["untreated filter paper", "filter paper"],
-        "Direct extraction": ["direct extraction"],
-        "Cell elution": ["cell elution"],
+        "Tape lift": ["tape-lifting", "tape lifting", "tape-lift", "tape lift"],
+        "Moist swab": ["swabbing", "swab", "moist"],
+        "Wet swab": ["swabbing", "swab", "wet"],
+        "Wet-dry swab": ["swabbing", "swab", "wet-dry", "wet dry"],
+        "Swab (unspecified)": ["swabbing", "swab"],
+        "Other": [
+            "vacuum",
+            "excising",
+            "soaking",
+            "direct lysis",
+            "direct pcr",
+            "fta paper-scraping",
+            "scraping",
+            "plasti dip",
+            "untreated filter paper",
+            "direct extraction",
+            "cell elution",
+        ],
     },
     "equipment_tested": {
         "Cotton swab": ["cotton swab", "cotton", "150c"],
@@ -143,13 +183,30 @@ FILTER_HIGHLIGHT_TERMS = {
 }
 
 
-def canonical_recovery_methods(value: str) -> list[str]:
-    normalized_items = [normalise_for_matching(item) for item in split_lines(value)]
+def canonical_recovery_methods(recovery_methods: str, equipment: str) -> list[str]:
+    recovery_content = normalise_for_matching(recovery_methods)
+    content = normalise_for_matching(f"{recovery_methods}\n{equipment}")
     matches = []
-    for token, label in RECOVERY_METHOD_RULES:
-        if any(token in item for item in normalized_items):
-            matches.append(label)
+    if contains_any(content, TAPE_LIFT_TOKENS):
+        matches.append("Tape lift")
+    if "swab" in content:
+        matches.extend(canonical_swab_methods(content))
+    if contains_any(recovery_content, OTHER_RECOVERY_METHOD_TOKENS):
+        matches.append("Other")
+    if not matches and recovery_content:
+        matches.append("Other")
     return ordered_unique(matches, RECOVERY_METHOD_ORDER)
+
+
+def canonical_swab_methods(content: str) -> list[str]:
+    methods = []
+    if contains_any(content, MOIST_SWAB_TOKENS):
+        methods.append("Moist swab")
+    if contains_any(content, WET_SWAB_TOKENS) or contains_abbreviation(content, WET_SWAB_ABBREVIATIONS):
+        methods.append("Wet swab")
+    if contains_any(content, WET_DRY_SWAB_TOKENS) or contains_abbreviation(content, WET_DRY_SWAB_ABBREVIATIONS):
+        methods.append("Wet-dry swab")
+    return methods or ["Swab (unspecified)"]
 
 
 def canonical_equipment(equipment: str, recovery_methods: str) -> list[str]:
@@ -213,6 +270,14 @@ def normalise_for_matching(value: str) -> str:
 
 def normalise_for_key(value: str) -> str:
     return re.sub(r"[^a-z0-9]+", "-", normalise_for_matching(value)).strip("-")
+
+
+def contains_any(value: str, tokens: Iterable[str]) -> bool:
+    return any(token in value for token in tokens)
+
+
+def contains_abbreviation(value: str, abbreviations: Iterable[str]) -> bool:
+    return any(re.search(rf"\b{re.escape(abbreviation)}\b", value) for abbreviation in abbreviations)
 
 
 def clean_text(value: str | None) -> str:

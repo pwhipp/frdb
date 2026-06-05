@@ -13,20 +13,15 @@ from data.files import (
     data_dir,
 )
 
-from .rules import (
-    BIOLOGICAL_MATERIAL_ORDER,
-    EQUIPMENT_ORDER,
-    FILTER_HIGHLIGHT_TERMS,
-    RECOVERY_METHOD_ORDER,
-    SUBSTRATE_TYPE_ORDER,
-)
+from .publication_filters import available_filter_values
+from .rules import FILTER_HIGHLIGHT_TERMS
 
 
 def default_output_folder(repo_root: Path) -> Path:
     return data_dir(repo_root)
 
 
-def module_name_from_stem(stem: str) -> str:
+def legacy_module_name(stem: str) -> str:
     name = re.sub(r"\W+", "_", stem.lower()).strip("_")
     if not name:
         raise ValueError("Workbook name does not contain a usable module name")
@@ -35,25 +30,25 @@ def module_name_from_stem(stem: str) -> str:
     return name
 
 
-def merge_existing_rows(output_folder: Path, workbook_path: Path, generated_rows: list[dict]) -> list[dict]:
+def assign_publication_ids(output_folder: Path, workbook_path: Path, rows: list[dict]) -> list[dict]:
     existing_rows = load_existing_rows(output_folder, workbook_path)
-    existing_by_key = {}
+    existing_by_author = {}
     for row in existing_rows:
         if row.get("authors"):
-            existing_by_key[row["authors"]] = row
+            existing_by_author[row["authors"]] = row
     next_id = max((row.get("id", 0) for row in existing_rows), default=0) + 1
-    merged = []
+    assigned_rows = []
 
-    for row in generated_rows:
-        existing = existing_by_key.get(row["authors"])
+    for row in rows:
+        existing = existing_by_author.get(row["authors"])
         if existing:
             row["id"] = existing["id"]
         else:
             row["id"] = next_id
             next_id += 1
-        merged.append(row)
+        assigned_rows.append(row)
 
-    return sorted(merged, key=lambda item: item["id"])
+    return sorted(assigned_rows, key=lambda item: item["id"])
 
 
 def load_existing_rows(output_folder: Path, workbook_path: Path) -> list[dict]:
@@ -61,7 +56,7 @@ def load_existing_rows(output_folder: Path, workbook_path: Path) -> list[dict]:
     if publications_path.exists():
         return list(json.loads(publications_path.read_text(encoding="utf-8")))
 
-    legacy_path = output_folder / f"{module_name_from_stem(workbook_path.stem)}.py"
+    legacy_path = output_folder / f"{legacy_module_name(workbook_path.stem)}.py"
     if legacy_path.exists():
         return load_legacy_rows(legacy_path)
 
@@ -77,13 +72,11 @@ def load_legacy_rows(path: Path) -> list[dict]:
     return list(getattr(module, "ROWS", []))
 
 
-def write_analysis_json(output_folder: Path, rows: list[dict], compact: bool) -> None:
+def write_data_files(output_folder: Path, rows: list[dict], publication_filters: list[dict], compact: bool) -> None:
     output_folder.mkdir(parents=True, exist_ok=True)
-    filter_options = filters()
-    publication_rows, publication_filters = split_publication_filters(rows, tuple(filter_options))
-    write_json(output_folder / PUBLICATIONS_JSON, publication_rows, compact)
-    write_json(output_folder / PUBLICATION_FILTERS_JSON, publication_filters, compact)
-    write_json(output_folder / FILTERS_JSON, filter_options, compact)
+    write_json(output_folder / PUBLICATIONS_JSON, rows, compact)
+    write_json(output_folder / PUBLICATION_FILTERS_JSON, publication_filters_in_row_order(rows, publication_filters), compact)
+    write_json(output_folder / FILTERS_JSON, available_filter_values(), compact)
     write_json(output_folder / FILTER_HIGHLIGHT_TERMS_JSON, FILTER_HIGHLIGHT_TERMS, compact)
 
 
@@ -97,25 +90,12 @@ def json_text(value, compact: bool) -> str:
     return json.dumps(value, ensure_ascii=False, indent=4)
 
 
-def filters() -> dict[str, list[str]]:
-    return {
-        "recovery_methods": list(RECOVERY_METHOD_ORDER),
-        "equipment_tested": list(EQUIPMENT_ORDER),
-        "biological_material": list(BIOLOGICAL_MATERIAL_ORDER),
-        "substrate_type": list(SUBSTRATE_TYPE_ORDER),
+def publication_filters_in_row_order(rows: list[dict], publication_filters: list[dict]) -> list[dict]:
+    publication_filters_by_author = {
+        publication_filter["authors"]: publication_filter
+        for publication_filter in publication_filters
     }
-
-
-def split_publication_filters(rows: list[dict], filter_fields: tuple[str, ...]) -> tuple[list[dict], list[dict]]:
-    filter_source_fields = {f"{field}_filter" for field in filter_fields}
-    publication_rows = []
-    publication_filters = []
-
-    for row in rows:
-        publication_rows.append({key: value for key, value in row.items() if key not in filter_source_fields})
-        publication_filters.append({
-            "authors": row["authors"],
-            **{field: row[f"{field}_filter"] for field in filter_fields},
-        })
-
-    return publication_rows, publication_filters
+    try:
+        return [publication_filters_by_author[row["authors"]] for row in rows]
+    except KeyError as error:
+        raise ValueError(f"Missing publication filters for {error.args[0]}") from error
