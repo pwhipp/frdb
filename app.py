@@ -8,6 +8,7 @@ from frdb import (
     EmailDeliveryError,
     cancel_verification,
     create_verification,
+    load_filter_highlight_terms,
     load_research_data,
     pop_verified,
     save_verified_upload,
@@ -29,7 +30,7 @@ class VerificationEmailCooldownError(Exception):
 
 @app.route('/')
 def index():
-    return render_template('index.html')
+    return render_template('index.html', filter_highlight_terms=load_filter_highlight_terms())
 
 
 @app.route('/propose-additions')

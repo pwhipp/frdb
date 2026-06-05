@@ -18,64 +18,8 @@ const filterFields = {
 };
 
 const activeFilters = {};
-const resultColumnWidth = 820;
-const filterHighlightTerms = {
-    recovery_methods: {
-        "Swabbing": ["swabbing", "swab"],
-        "Tape-lifting": ["tape-lifting", "tape lifting", "tape-lift", "tape lift"],
-        "Vacuum": ["vacuum", "m-vac"],
-        "Excising": ["excising", "excise"],
-        "Soaking": ["soaking", "soak"],
-        "Direct lysis": ["direct lysis"],
-        "Direct PCR": ["direct pcr"],
-        "FTA paper-scraping": ["fta paper-scraping", "fta", "paper-scraping"],
-        "Scraping": ["scraping", "scrape"],
-        "Plasti dip": ["plasti dip"],
-        "Untreated filter paper": ["untreated filter paper", "filter paper"],
-        "Direct extraction": ["direct extraction"],
-        "Cell elution": ["cell elution"],
-    },
-    equipment_tested: {
-        "Cotton swab": ["cotton swab", "cotton", "150c"],
-        "Nylon/flocked swab": ["nylon", "flocked", "floq", "flock"],
-        "Rayon swab": ["rayon"],
-        "Foam swab": ["foam"],
-        "Polyester swab": ["polyester"],
-        "Tape lift/minitape": ["tape lift", "tape-lift", "minitape", "mini-tape", "gellifter", "instant lifter"],
-        "Adhesive tape": ["adhesive tape", "scotch", "sellotape", "masking tape"],
-        "M-Vac/wet vacuum": ["m-vac", "wet vacuum", "wet-vacuum"],
-        "Dry vacuum": ["dry vacuum", "dna buster"],
-        "Pulse lavage": ["pulse lavage", "interpulse", "pulsavac"],
-        "Direct PCR/microFLOQ": ["direct pcr", "microfloq"],
-        "Filter/FTA paper": ["filter paper", "fta", "whatman"],
-        "Scraping/excision": ["scraping", "excising", "excision"],
-        "Direct lysis/extraction": ["direct lysis", "direct extraction", "autolys", "prepfiler", "ez1"],
-        "Soaking/rinse": ["soaking", "rinse", "atl buffer", "btmix"],
-    },
-    biological_material: {
-        "Touch DNA": ["touch dna", "tdna"],
-        "Blood": ["blood", "buffy coat"],
-        "Saliva": ["saliva"],
-        "Buccal cells": ["buccal"],
-        "gDNA": ["gdna"],
-        "Extracted DNA": ["extracted dna", "dna isolate"],
-        "cfDNA": ["cfdna"],
-        "Semen": ["semen"],
-        "Sweat": ["sweat"],
-        "Buffy coat": ["buffy coat"],
-        "Various": ["various"],
-    },
-    substrate_type: {
-        "Porous": ["porous"],
-        "Non-porous": ["non-porous"],
-        "n/a": ["n/a"],
-    },
-};
-let filterOptions = {};
-let filterCounts = {};
-let filterModal;
-let currentFilterField = null;
-let table;
+const filterHighlightTerms = readEmbeddedJson("filterHighlightTermsData");
+let filterOptions = {}, filterCounts = {}, filterModal, currentFilterField = null, table;
 
 document.addEventListener("DOMContentLoaded", async () => {
     filterModal = new bootstrap.Modal(document.getElementById("filterModal"));
@@ -99,73 +43,7 @@ function initialiseTable(rows) {
         layout: "fitData",
         movableColumns: true,
         placeholder: "No matching studies",
-        columns: [
-            {
-                title: "Authors",
-                field: "authors",
-                width: 185,
-                frozen: true,
-                formatter: authorFormatter,
-            },
-            {
-                title: "No. of samples",
-                field: "sample_count",
-                width: 125,
-                formatter: plainPreWrapFormatter("sample_count_html"),
-            },
-            {
-                title: "Recovery methods",
-                titleFormatter: () => filterTitle("Recovery methods", "recovery_methods"),
-                field: "recovery_methods",
-                width: 185,
-                formatter: filterableCellFormatter("recovery_methods_html", "recovery_methods", "recovery_methods_filter"),
-            },
-            {
-                title: "Equipment tested",
-                titleFormatter: () => filterTitle("Equipment tested", "equipment_tested"),
-                field: "equipment_tested",
-                width: 280,
-                formatter: filterableCellFormatter("equipment_tested_html", "equipment_tested", "equipment_tested_filter"),
-            },
-            {
-                title: "Biological material",
-                titleFormatter: () => filterTitle("Biological material", "biological_material"),
-                field: "biological_material",
-                width: 190,
-                formatter: filterableCellFormatter("biological_material_html", "biological_material", "biological_material_filter"),
-            },
-            {
-                title: "Substrate type",
-                titleFormatter: () => filterTitle("Substrate type", "substrate_type"),
-                field: "substrate_type",
-                width: 150,
-                formatter: filterableCellFormatter("substrate_type_html", "substrate_type", "substrate_type_filter"),
-            },
-            {
-                title: "Substrate descriptions",
-                field: "substrate_descriptions",
-                width: 280,
-                formatter: plainPreWrapFormatter("substrate_descriptions_html"),
-            },
-            {
-                title: "Statistical analysis",
-                field: "statistical_analysis",
-                width: 160,
-                formatter: statisticalFormatter,
-            },
-            {
-                title: "STR analysis",
-                field: "str_analysis",
-                width: 115,
-                formatter: plainPreWrapFormatter("str_analysis_html"),
-            },
-            {
-                title: "Results",
-                field: "results",
-                width: resultColumnWidth,
-                formatter: plainPreWrapFormatter("results_html"),
-            },
-        ],
+        columns: publicationColumns(),
     });
 
     table.on("tableBuilt", () => {
@@ -174,6 +52,50 @@ function initialiseTable(rows) {
     });
     table.on("dataFiltered", (filters, matchingRows) => updateRowCount(matchingRows.length, rows.length));
     updateRowCount(rows.length, rows.length);
+}
+
+function publicationColumns() {
+    return [
+        authorColumn(),
+        textColumn("No. of samples", "sample_count", 125),
+        filterColumn("Recovery methods", "recovery_methods", 185),
+        filterColumn("Equipment tested", "equipment_tested", 280),
+        filterColumn("Biological material", "biological_material", 190),
+        filterColumn("Substrate type", "substrate_type", 150),
+        textColumn("Substrate descriptions", "substrate_descriptions", 280),
+        {
+            title: "Statistical analysis",
+            field: "statistical_analysis",
+            width: 160,
+            formatter: statisticalFormatter,
+        },
+        textColumn("STR analysis", "str_analysis", 115),
+        textColumn("Results", "results", 820),
+    ];
+}
+
+function authorColumn() {
+    return {
+        title: "Authors",
+        field: "authors",
+        width: 185,
+        frozen: true,
+        formatter: authorFormatter,
+    };
+}
+
+function textColumn(title, field, width) {
+    return {title, field, width, formatter: plainPreWrapFormatter(field)};
+}
+
+function filterColumn(title, field, width) {
+    return {
+        title,
+        titleFormatter: () => filterTitle(title, field),
+        field,
+        width,
+        formatter: filterableCellFormatter(field, `${field}_filter`),
+    };
 }
 
 function filterTitle(title, field) {
@@ -194,11 +116,11 @@ function authorFormatter(cell) {
     return `<a class="authors-link cell-prewrap" href="${escapeAttribute(row.source_url)}" target="_blank" rel="noopener noreferrer">${text}</a>`;
 }
 
-function plainPreWrapFormatter(htmlField) {
-    return (cell) => `<div class="cell-prewrap">${cell.getData()[htmlField] || ""}</div>`;
+function plainPreWrapFormatter(field) {
+    return (cell) => `<div class="cell-prewrap">${escapeHtml(cell.getData()[field] || "")}</div>`;
 }
 
-function filterableCellFormatter(htmlField, activeFilterField, rowFilterField) {
+function filterableCellFormatter(activeFilterField, rowFilterField) {
     return (cell) => {
         const row = cell.getData();
         const selected = activeFilters[activeFilterField];
@@ -208,7 +130,7 @@ function filterableCellFormatter(htmlField, activeFilterField, rowFilterField) {
             : filterItems.filter((item) => selected.has(item));
         const wrapper = document.createElement("div");
         wrapper.className = "cell-prewrap";
-        wrapper.innerHTML = row[htmlField] || "";
+        wrapper.textContent = row[activeFilterField] || "";
 
         if (matchedItems.length) {
             highlightFilterTerms(wrapper, activeFilterField, matchedItems);
@@ -280,7 +202,7 @@ function statisticalFormatter(cell) {
     const row = cell.getData();
     const bandClass = row.replicate_band_key ? ` band-${row.replicate_band_key}` : "";
     const label = row.replicate_band ? ` title="${escapeAttribute(row.replicate_band)}"` : "";
-    return `<span class="stat-cell${bandClass}"${label}>${row.statistical_analysis_html || ""}</span>`;
+    return `<span class="stat-cell${bandClass}"${label}>${escapeHtml(row.statistical_analysis || "")}</span>`;
 }
 
 document.addEventListener("click", (event) => {
@@ -445,6 +367,11 @@ function buildFilterCounts(rows) {
         }
     }
     return counts;
+}
+
+function readEmbeddedJson(id) {
+    const element = document.getElementById(id);
+    return element ? JSON.parse(element.textContent) : {};
 }
 
 function slugify(value) {

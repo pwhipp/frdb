@@ -89,6 +89,59 @@ BIOLOGICAL_MATERIAL_RULES = (
 BIOLOGICAL_MATERIAL_ORDER = tuple(label for label, _ in BIOLOGICAL_MATERIAL_RULES)
 SUBSTRATE_TYPE_ORDER = ("Porous", "Non-porous", "n/a")
 
+FILTER_HIGHLIGHT_TERMS = {
+    "recovery_methods": {
+        "Swabbing": ["swabbing", "swab"],
+        "Tape-lifting": ["tape-lifting", "tape lifting", "tape-lift", "tape lift"],
+        "Vacuum": ["vacuum", "m-vac"],
+        "Excising": ["excising", "excise"],
+        "Soaking": ["soaking", "soak"],
+        "Direct lysis": ["direct lysis"],
+        "Direct PCR": ["direct pcr"],
+        "FTA paper-scraping": ["fta paper-scraping", "fta", "paper-scraping"],
+        "Scraping": ["scraping", "scrape"],
+        "Plasti dip": ["plasti dip"],
+        "Untreated filter paper": ["untreated filter paper", "filter paper"],
+        "Direct extraction": ["direct extraction"],
+        "Cell elution": ["cell elution"],
+    },
+    "equipment_tested": {
+        "Cotton swab": ["cotton swab", "cotton", "150c"],
+        "Nylon/flocked swab": ["nylon", "flocked", "floq", "flock"],
+        "Rayon swab": ["rayon"],
+        "Foam swab": ["foam"],
+        "Polyester swab": ["polyester"],
+        "Tape lift/minitape": ["tape lift", "tape-lift", "minitape", "mini-tape", "gellifter", "instant lifter"],
+        "Adhesive tape": ["adhesive tape", "scotch", "sellotape", "masking tape"],
+        "M-Vac/wet vacuum": ["m-vac", "wet vacuum", "wet-vacuum"],
+        "Dry vacuum": ["dry vacuum", "dna buster"],
+        "Pulse lavage": ["pulse lavage", "interpulse", "pulsavac"],
+        "Direct PCR/microFLOQ": ["direct pcr", "microfloq"],
+        "Filter/FTA paper": ["filter paper", "fta", "whatman"],
+        "Scraping/excision": ["scraping", "excising", "excision"],
+        "Direct lysis/extraction": ["direct lysis", "direct extraction", "autolys", "prepfiler", "ez1"],
+        "Soaking/rinse": ["soaking", "rinse", "atl buffer", "btmix"],
+    },
+    "biological_material": {
+        "Touch DNA": ["touch dna", "tdna"],
+        "Blood": ["blood", "buffy coat"],
+        "Saliva": ["saliva"],
+        "Buccal cells": ["buccal"],
+        "gDNA": ["gdna"],
+        "Extracted DNA": ["extracted dna", "dna isolate"],
+        "cfDNA": ["cfdna"],
+        "Semen": ["semen"],
+        "Sweat": ["sweat"],
+        "Buffy coat": ["buffy coat"],
+        "Various": ["various"],
+    },
+    "substrate_type": {
+        "Porous": ["porous"],
+        "Non-porous": ["non-porous"],
+        "n/a": ["n/a"],
+    },
+}
+
 
 def canonical_recovery_methods(value: str) -> list[str]:
     normalized_items = [normalise_for_matching(item) for item in split_lines(value)]
@@ -138,10 +191,6 @@ def replicate_band_key(value: str) -> str:
     if "≤3" in value or "not performed" in value.lower():
         return "low"
     return ""
-
-
-def row_key(authors: str, source_url: str) -> str:
-    return normalise_for_key(authors)
 
 
 def split_lines(value: str) -> list[str]:

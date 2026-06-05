@@ -8,32 +8,21 @@ The goal of this database is to present users with published forensic recovery m
 
 ### Updating the research data
 
-Research data is generated from an Excel workbook. Do not edit generated files in `data/` by hand.
+Research JSON is generated from an Excel workbook into ignored files under `data/`. Do not edit generated JSON files by hand.
 
-To regenerate the main data module from a workbook:
-
-```bash
-.venv/bin/python script/analyze_workbook.py path/to/workbook.xlsx --output data/interactive_evidence_recovery_comparison_results.py
-```
-
-If `--output` is omitted, the script writes to `data/<workbook-name>.py`. The app imports every non-private module in `data/`, so use `--output` when replacing the existing dataset rather than adding a new one.
-
-After updating data, run the Python verification commands:
+To regenerate the canonical data files from a workbook:
 
 ```bash
-.venv/bin/python -m compileall app.py frdb script data
-.venv/bin/python - <<'PY'
-from app import app
-client = app.test_client()
-index = client.get('/')
-api = client.get('/api/research-data')
-assert index.status_code == 200, index.status_code
-assert api.status_code == 200, api.status_code
-payload = api.get_json()
-assert payload and payload.get('rows'), 'API returned no rows'
-assert payload.get('filters'), 'API returned no filters'
-PY
+.venv/bin/python script/analyze_workbook.py path/to/workbook.xlsx
 ```
+
+The script writes these files by default:
+
+- `data/publications.json`: publication rows for the main table.
+- `data/filters.json`: filter values for the table API.
+- `data/filter_highlight_terms.json`: filter highlight terms embedded into the home page.
+
+Use `--output-folder path/to/data` to write to a different folder. Use `--compact` to write compact JSON instead of the default indented JSON.
 
 ### Running a local test environment
 

@@ -1,52 +1,35 @@
 from __future__ import annotations
 
 from functools import lru_cache
-import importlib
-import pkgutil
+import json
+from pathlib import Path
 
-import data as generated_data
+from data.files import (
+    FILTERS_JSON,
+    FILTER_HIGHLIGHT_TERMS_JSON,
+    PUBLICATIONS_JSON,
+    data_dir,
+)
 
 
-FILTER_FIELDS = ("recovery_methods", "equipment_tested", "biological_material", "substrate_type")
+DATA_DIR = data_dir(Path(__file__).resolve().parent.parent)
+PUBLICATIONS_PATH = DATA_DIR / PUBLICATIONS_JSON
+FILTERS_PATH = DATA_DIR / FILTERS_JSON
+FILTER_HIGHLIGHT_TERMS_PATH = DATA_DIR / FILTER_HIGHLIGHT_TERMS_JSON
 
 
 @lru_cache(maxsize=1)
 def load_research_data() -> dict:
-    rows = []
-    filters = {field: [] for field in FILTER_FIELDS}
-
-    for module in generated_data_modules():
-        rows.extend(module_rows(module, len(rows)))
-        merge_filters(filters, getattr(module, "FILTERS", {}))
-
     return {
-        "rows": rows,
-        "filters": filters,
+        "rows": load_json(PUBLICATIONS_PATH),
+        "filters": load_json(FILTERS_PATH),
     }
 
 
-def generated_data_modules() -> list:
-    modules = []
-    for module_info in pkgutil.iter_modules(generated_data.__path__):
-        if module_info.name.startswith("_"):
-            continue
-        modules.append(importlib.import_module(f"{generated_data.__name__}.{module_info.name}"))
-    return modules
+@lru_cache(maxsize=1)
+def load_filter_highlight_terms() -> dict:
+    return load_json(FILTER_HIGHLIGHT_TERMS_PATH)
 
 
-def module_rows(module, offset: int) -> list[dict]:
-    rows = []
-    for index, row in enumerate(getattr(module, "ROWS", []), start=1):
-        display_row = dict(row)
-        display_row["id"] = offset + index
-        rows.append(display_row)
-    return rows
-
-
-def merge_filters(filters: dict[str, list[str]], module_filters: dict[str, list[str]]) -> None:
-    for field in FILTER_FIELDS:
-        known = set(filters[field])
-        for value in module_filters.get(field, []):
-            if value not in known:
-                filters[field].append(value)
-                known.add(value)
+def load_json(path: Path):
+    return json.loads(path.read_text(encoding="utf-8"))

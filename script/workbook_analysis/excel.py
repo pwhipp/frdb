@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from html import escape
 from pathlib import Path
 import re
 from xml.etree import ElementTree as ET
@@ -17,7 +16,6 @@ from .rules import (
     clean_text,
     normalise_header,
     replicate_band_key,
-    row_key,
 )
 
 
@@ -30,7 +28,6 @@ NS = {"main": SPREADSHEET_NS, "rel": PACKAGE_REL_NS}
 @dataclass(frozen=True)
 class CellValue:
     text: str
-    html: str
 
 
 def parse_workbook(path: Path) -> list[dict]:
@@ -61,30 +58,16 @@ def shared_string_value(item: ET.Element) -> CellValue:
     runs = item.findall("main:r", {"main": SPREADSHEET_NS})
     if not runs:
         text = clean_text("".join(node.text or "" for node in item.findall(".//main:t", {"main": SPREADSHEET_NS})))
-        return CellValue(text=text, html=escape(text))
+        return CellValue(text=text)
 
     text_parts = []
-    html_parts = []
     for run in runs:
         run_text = clean_text("".join(node.text or "" for node in run.findall("main:t", {"main": SPREADSHEET_NS})))
         if not run_text:
             continue
         text_parts.append(run_text)
-        html_parts.append(format_run(run, run_text))
 
-    return CellValue(text="".join(text_parts), html="".join(html_parts))
-
-
-def format_run(run: ET.Element, text: str) -> str:
-    run_properties = run.find("main:rPr", {"main": SPREADSHEET_NS})
-    is_bold = run_properties is not None and run_properties.find("main:b", {"main": SPREADSHEET_NS}) is not None
-    is_italic = run_properties is not None and run_properties.find("main:i", {"main": SPREADSHEET_NS}) is not None
-    value = escape(text)
-    if is_italic:
-        value = f"<em>{value}</em>"
-    if is_bold:
-        value = f"<strong>{value}</strong>"
-    return value
+    return CellValue(text="".join(text_parts))
 
 
 def first_worksheet_path(workbook: ZipFile, workbook_xml: ET.Element) -> str:
@@ -155,10 +138,10 @@ def cell_value(cell: ET.Element, shared_strings: list[CellValue]) -> CellValue:
 
     if cell_type == "inlineStr":
         text = clean_text("".join(node.text or "" for node in cell.findall(".//main:t", {"main": SPREADSHEET_NS})))
-        return CellValue(text=text, html=escape(text))
+        return CellValue(text=text)
 
     text = clean_text(value_node.text if value_node is not None else "")
-    return CellValue(text=text, html=escape(text))
+    return CellValue(text=text)
 
 
 def find_header_row(cells: dict[str, CellValue]) -> int:
@@ -218,16 +201,14 @@ def build_rows(
     authors_column = column_for_field(column_fields, "authors")
     statistical_column = column_for_field(column_fields, "statistical_analysis")
 
-    while cells.get(f"{authors_column}{row_number}", CellValue("", "")).text:
+    while cells.get(f"{authors_column}{row_number}", CellValue("")).text:
         row = {}
         for column, key in column_fields.items():
-            cell = cells.get(f"{column}{row_number}", CellValue("", ""))
+            cell = cells.get(f"{column}{row_number}", CellValue(""))
             row[key] = cell.text
-            row[f"{key}_html"] = cell.html
 
         author_reference = f"{authors_column}{row_number}"
         row["source_url"] = hyperlinks.get(author_reference, "")
-        row["row_key"] = row_key(row["authors"], row["source_url"])
         row["recovery_methods_filter"] = canonical_recovery_methods(row["recovery_methods"])
         row["equipment_tested_filter"] = canonical_equipment(row["equipment_tested"], row["recovery_methods"])
         row["biological_material_filter"] = canonical_biological_material(row["biological_material"])

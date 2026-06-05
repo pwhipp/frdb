@@ -1,4 +1,6 @@
 local_settings.py
+data/*
+!data/files.py
 
 build/
 .build/
