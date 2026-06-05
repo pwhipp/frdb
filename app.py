@@ -1,6 +1,6 @@
 import time
 
-from flask import Flask, jsonify, render_template, request, send_from_directory
+from flask import Flask, abort, jsonify, redirect, render_template, request, send_from_directory, url_for
 
 from local_settings import CONTACT_RECIPIENT
 from frdb import (
@@ -8,8 +8,11 @@ from frdb import (
     EmailDeliveryError,
     cancel_verification,
     create_verification,
+    load_decision_map,
     load_filter_highlight_terms,
     load_research_data,
+    load_table_catalog,
+    load_table_data,
     pop_verified,
     save_verified_upload,
     send_email,
@@ -28,9 +31,32 @@ class VerificationEmailCooldownError(Exception):
     pass
 
 
+@app.context_processor
+def navigation_context():
+    return {'table_catalog': load_table_catalog()}
+
+
 @app.route('/')
 def index():
-    return render_template('index.html', filter_highlight_terms=load_filter_highlight_terms())
+    return render_template('index.html', decision_map=load_decision_map())
+
+
+@app.route('/tables')
+def default_table():
+    return redirect(url_for('table_view', table_id='publications'))
+
+
+@app.route('/tables/<table_id>')
+def table_view(table_id: str):
+    try:
+        table = table_metadata_for_view(table_id)
+    except ValueError:
+        abort(404)
+    return render_template(
+        'tables.html',
+        active_table=table,
+        filter_highlight_terms=load_filter_highlight_terms(),
+    )
 
 
 @app.route('/propose-additions')
@@ -56,6 +82,14 @@ def example_workbook():
 @app.route('/api/research-data')
 def research_data():
     return jsonify(load_research_data())
+
+
+@app.route('/api/tables/<table_id>')
+def table_data(table_id: str):
+    try:
+        return jsonify(load_table_data(table_id))
+    except ValueError:
+        return jsonify({'error': 'Unknown table'}), 404
 
 
 @app.post('/api/contact/start')
@@ -151,6 +185,13 @@ def cancel_pending_verification():
 
 def verification_start_response(request_id: str):
     return jsonify({'request_id': request_id})
+
+
+def table_metadata_for_view(table_id: str) -> dict:
+    for table in load_table_catalog():
+        if table['id'] == table_id:
+            return table
+    raise ValueError(f'Unknown table: {table_id}')
 
 
 def start_email_verification(purpose: str, payload: dict) -> str:

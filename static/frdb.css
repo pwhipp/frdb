@@ -17,9 +17,17 @@ body {
 
 body {
     margin: 0;
+    display: flex;
+    flex-direction: column;
     overflow: hidden;
     color: var(--app-text);
     background: #ffffff;
+}
+
+.app-nav,
+.table-page-header,
+.filter-bar {
+    flex: 0 0 auto;
 }
 
 .table-actions {
@@ -35,6 +43,35 @@ body {
     color: var(--app-muted);
     font-size: 0.9rem;
     text-align: right;
+}
+
+.table-page-header {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 1rem;
+    min-height: 5rem;
+    padding: 0.75rem 1rem;
+    border-bottom: 1px solid var(--app-border);
+    background: linear-gradient(135deg, #f8fbfc 0%, #eef7f5 100%);
+}
+
+.table-page-header h1 {
+    margin: 0;
+    font-size: 1.35rem;
+}
+
+.table-page-header p {
+    margin: 0.15rem 0 0;
+    color: var(--app-muted);
+}
+
+.table-page-kicker {
+    color: var(--app-accent);
+    font-size: 0.75rem;
+    font-weight: 800;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
 }
 
 .filter-bar {
@@ -100,11 +137,24 @@ body {
 }
 
 .table-shell {
-    height: calc(100vh - 6.5rem);
+    flex: 1 1 auto;
+    height: auto;
+    width: 100%;
+    min-width: 0;
+    min-height: 0;
+    overflow: hidden;
+}
+
+.table-scroll {
+    height: 100%;
+    width: 100%;
+    min-width: 0;
+    overflow: hidden;
 }
 
 #researchTable {
     height: 100%;
+    width: 100%;
 }
 
 .tabulator {
@@ -115,6 +165,10 @@ body {
 .tabulator .tabulator-header {
     border-bottom: 1px solid #aeb8c3;
     background: #eef2f6;
+}
+
+.tabulator .tabulator-tableholder {
+    overflow-x: auto;
 }
 
 .tabulator .tabulator-header .tabulator-col {

@@ -1,75 +1,116 @@
 {% extends "base.html" %}
 
-{% block title %}FRDB{% endblock %}
+{% block title %}FRDB Decision Map{% endblock %}
 
 {% block extra_head %}
-    <link href="https://cdn.jsdelivr.net/npm/tabulator-tables@6.4.0/dist/css/tabulator_bootstrap5.min.css" rel="stylesheet">
-    <link href="{{ url_for('static', filename='frdb.css') }}" rel="stylesheet">
+    <link href="{{ url_for('static', filename='decision-map.css') }}" rel="stylesheet">
 {% endblock %}
+
+{% macro study_link(ids, count) -%}
+    {% if ids and count %}
+        <a class="study-count-link" href="{{ url_for('table_view', table_id='publications') }}?study_ids={{ ids | join(',') }}">{{ count }}</a>
+    {% else %}
+        <span class="study-count-empty">0</span>
+    {% endif %}
+{%- endmacro %}
+
+{% macro study_noun(count) -%}
+    {{ "study" if count == 1 else "studies" }}
+{%- endmacro %}
+
+{% macro score_link(item) -%}
+    <a class="ranking-score" href="{{ url_for('table_view', table_id='scored_comparisons') }}?score_key={{ item.score_key | urlencode }}">{{ '%+.2f' | format(item.score) }}</a>
+{%- endmacro %}
+
+{% macro contribution_link(key, count) -%}
+{%- if count -%}
+<a class="ranking-meta-link" href="{{ url_for('table_view', table_id='scored_comparisons') }}?contribution_key={{ key | urlencode }}">{{ count }}</a>
+{%- else -%}
+<span>{{ count }}</span>
+{%- endif -%}
+{%- endmacro %}
 
 {% block content %}
-    <nav class="filter-bar" aria-label="Table filters">
-        <span class="filter-bar-label">Filter by:</span>
-        <div class="filter-buttons">
-            <button class="btn btn-outline-secondary btn-sm filter-pill" type="button" data-filter-field="recovery_methods">
-                <span>Recovery methods</span>
-                <span class="filter-pill-count"></span>
-            </button>
-            <button class="btn btn-outline-secondary btn-sm filter-pill" type="button" data-filter-field="equipment_tested">
-                <span>Equipment tested</span>
-                <span class="filter-pill-count"></span>
-            </button>
-            <button class="btn btn-outline-secondary btn-sm filter-pill" type="button" data-filter-field="biological_material">
-                <span>Biological material</span>
-                <span class="filter-pill-count"></span>
-            </button>
-            <button class="btn btn-outline-secondary btn-sm filter-pill" type="button" data-filter-field="substrate_type">
-                <span>Substrate type</span>
-                <span class="filter-pill-count"></span>
-            </button>
-        </div>
-        <div class="filter-bar-spacer"></div>
-        <div class="table-actions" aria-label="Table actions">
-            <button class="btn btn-outline-secondary btn-sm" id="clearFiltersButton" type="button">Clear filters</button>
-            <span class="row-count" id="rowCount">Loading...</span>
-        </div>
-    </nav>
+    <main class="decision-page">
+        <section class="decision-hero">
+            <div class="decision-kicker">Forensic biological material recovery</div>
+            <h1>Evidence recovery decision map</h1>
+            <p>
+                A study-level map of ranked recovery techniques by biological material and surface type.
+                Study counts link directly to the filtered Publications table.
+            </p>
+        </section>
 
-    <main class="table-shell">
-        <div id="researchTable" aria-label="Evidence recovery research table"></div>
-    </main>
+        <section class="decision-grid" aria-label="Recovery decision map">
+            <div class="decision-grid-heading">Biological material</div>
+            {% for surface in decision_map.surface_order %}
+                <div class="decision-grid-heading decision-grid-surface">{{ surface }} surface</div>
+            {% endfor %}
 
-    <div class="modal fade" id="filterModal" tabindex="-1" aria-labelledby="filterModalTitle" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-scrollable">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <div>
-                        <h2 class="modal-title fs-5" id="filterModalTitle">Filter</h2>
-                        <p class="modal-subtitle" id="filterModalSubtitle"></p>
-                    </div>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body">
-                    <div class="filter-tools">
-                        <input class="form-control form-control-sm" id="filterSearch" type="search" placeholder="Search values" autocomplete="off">
-                    </div>
-                    <label class="filter-select-heading" for="filterSelectHeading">
-                        <input class="form-check-input" id="filterSelectHeading" type="checkbox" aria-label="Toggle filter options">
-                        <span class="filter-select-heading-count" id="filterSelectHeadingCount"></span>
-                    </label>
-                    <div class="filter-options" id="filterOptions"></div>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
-                    <button type="button" class="btn btn-primary" id="applyFilterButton">Apply</button>
-                </div>
+            {% for row in decision_map.matrix %}
+                <article class="bio-card">
+                    <span class="bio-label">{{ row.biological_material }}</span>
+                </article>
+                {% for cell in row.surfaces %}
+                    <article class="decision-card confidence-{{ cell.confidence | lower | replace(' ', '-') }}">
+                        <div class="decision-card-topline">
+                            <span class="confidence-pill">{{ cell.confidence }}</span>
+                            <span class="cell-study-total">
+                                {{ study_link(cell.publication_ids, cell.unique_studies_requested_methods) }} {{ study_noun(cell.unique_studies_requested_methods) }}
+                            </span>
+                        </div>
+                        <h2>{{ cell.biological_material }} on {{ cell.surface | lower }}</h2>
+                        {% if cell.rankings %}
+                            <ol class="ranking-list">
+                                {% for item in cell.rankings %}
+                                    <li>
+                                        <div class="ranking-main">
+                                            <span class="ranking-method">{{ item.method }}</span>
+                                            {{ score_link(item) }}
+                                        </div>
+                                        <div class="ranking-meta">
+                                            <span class="ranking-meta-item">{{ study_link(item.publication_ids, item.unique_studies) }} {{ study_noun(item.unique_studies) }}</span>
+                                            <span class="ranking-meta-separator">·</span>
+                                            <span class="ranking-meta-item">{{ contribution_link(item.win_key, item.wins) }}/{{ contribution_link(item.loss_key, item.losses) }}/{{ contribution_link(item.tie_key, item.ties) }} wins/losses/ties</span>
+                                            <span class="ranking-meta-separator">·</span>
+                                            <span class="ranking-meta-item">{{ item.significant_wins }}/{{ item.significant_losses }} significant wins/losses</span>
+                                        </div>
+                                    </li>
+                                {% endfor %}
+                            </ol>
+                        {% else %}
+                            <p class="no-evidence">No direct target-method evidence after normalization.</p>
+                        {% endif %}
+                        <p class="confidence-rationale">{{ cell.confidence_rationale }}</p>
+                        <p class="unspecified-note">
+                            Including unspecified swab evidence: {{ study_link(cell.all_publication_ids, cell.unique_studies_including_unspecified_swab) }} {{ study_noun(cell.unique_studies_including_unspecified_swab) }}.
+                        </p>
+                    </article>
+                {% endfor %}
+            {% endfor %}
+        </section>
+
+        <section class="decision-explainer" aria-label="Decision map explanation">
+            <div class="explainer-panel">
+                <h2>How to read this map</h2>
+                {% for item in decision_map.readme %}
+                    <section class="explainer-item">
+                        <h3>{{ item.item }}</h3>
+                        <p>{{ item.description }}</p>
+                    </section>
+                {% endfor %}
             </div>
-        </div>
-    </div>
-{% endblock %}
-
-{% block scripts %}
-    <script src="https://cdn.jsdelivr.net/npm/tabulator-tables@6.4.0/dist/js/tabulator.min.js"></script>
-    <script id="filterHighlightTermsData" type="application/json">{{ filter_highlight_terms | tojson }}</script>
-    <script src="{{ url_for('static', filename='frdb.js') }}"></script>
+            <div class="explainer-panel scoring-panel">
+                <h2>Scoring rules</h2>
+                <dl class="scoring-list">
+                    {% for item in decision_map.scoring_readme %}
+                        <div>
+                            <dt>{{ item.rule }}</dt>
+                            <dd>{{ item.score_effect }}</dd>
+                        </div>
+                    {% endfor %}
+                </dl>
+            </div>
+        </section>
+    </main>
 {% endblock %}

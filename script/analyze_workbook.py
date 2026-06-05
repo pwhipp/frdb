@@ -15,10 +15,11 @@ from workbook_analysis.workbook import parse_workbook
 def main() -> None:
     arguments = parse_args()
     workbook_path = arguments.workbook.resolve()
+    comparisons_path = (arguments.comparisons_workbook or workbook_path.with_name("recovery_comparisons.xlsx")).resolve()
     output_folder = (arguments.output_folder or default_output_folder(REPO_ROOT)).resolve()
-    parsed_workbook = parse_workbook(workbook_path)
+    parsed_workbook = parse_workbook(workbook_path, comparisons_path)
     rows = assign_publication_ids(output_folder, workbook_path, parsed_workbook.rows)
-    write_data_files(output_folder, rows, parsed_workbook.publication_filters, arguments.compact)
+    write_data_files(output_folder, rows, parsed_workbook.publication_filters, parsed_workbook.comparisons, arguments.compact)
     print(f"Wrote {len(rows)} publications to {output_folder}")
 
 
@@ -29,6 +30,11 @@ def parse_args() -> argparse.Namespace:
         "--output-folder",
         type=Path,
         help="Folder for generated JSON data. Defaults to data/.",
+    )
+    parser.add_argument(
+        "--comparisons-workbook",
+        type=Path,
+        help="Path to recovery_comparisons.xlsx. Defaults to a sibling of the source workbook.",
     )
     parser.add_argument(
         "--compact",

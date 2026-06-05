@@ -6,10 +6,12 @@ import json
 from pathlib import Path
 
 from data.files import (
+    DECISION_MAP_JSON,
     FILTERS_JSON,
     FILTER_HIGHLIGHT_TERMS_JSON,
     PUBLICATION_FILTERS_JSON,
     PUBLICATIONS_JSON,
+    TABLES_JSON,
     data_dir,
 )
 
@@ -19,6 +21,8 @@ PUBLICATIONS_PATH = DATA_DIR / PUBLICATIONS_JSON
 PUBLICATION_FILTERS_PATH = DATA_DIR / PUBLICATION_FILTERS_JSON
 FILTERS_PATH = DATA_DIR / FILTERS_JSON
 FILTER_HIGHLIGHT_TERMS_PATH = DATA_DIR / FILTER_HIGHLIGHT_TERMS_JSON
+DECISION_MAP_PATH = DATA_DIR / DECISION_MAP_JSON
+TABLES_PATH = DATA_DIR / TABLES_JSON
 
 
 @lru_cache(maxsize=1)
@@ -38,6 +42,46 @@ def load_research_data() -> dict:
 @lru_cache(maxsize=1)
 def load_filter_highlight_terms() -> dict:
     return load_json(FILTER_HIGHLIGHT_TERMS_PATH)
+
+
+@lru_cache(maxsize=1)
+def load_decision_map() -> dict:
+    return load_json(DECISION_MAP_PATH)
+
+
+@lru_cache(maxsize=1)
+def load_tables_data() -> dict:
+    return load_json(TABLES_PATH)
+
+
+def load_table_catalog() -> list[dict]:
+    return load_tables_data()["catalog"]
+
+
+def load_table_data(table_id: str) -> dict:
+    table = table_metadata(table_id)
+    payload = {"table": table, "rows": rows_for_table(table_id)}
+    if table.get("special_filters"):
+        research_data = load_research_data()
+        payload["filters"] = research_data["filters"]
+        payload["publication_filters"] = research_data["publication_filters"]
+    return payload
+
+
+def table_metadata(table_id: str) -> dict:
+    for table in load_table_catalog():
+        if table["id"] == table_id:
+            return table
+    raise ValueError(f"Unknown table: {table_id}")
+
+
+def rows_for_table(table_id: str) -> list[dict]:
+    if table_id == "publications":
+        return load_research_data()["rows"]
+    tables = load_tables_data()["tables"]
+    if table_id not in tables:
+        raise ValueError(f"Unknown table: {table_id}")
+    return tables[table_id]
 
 
 def load_json(path: Path):
