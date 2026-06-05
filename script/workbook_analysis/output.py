@@ -8,6 +8,7 @@ import re
 from data.files import (
     FILTERS_JSON,
     FILTER_HIGHLIGHT_TERMS_JSON,
+    PUBLICATION_FILTERS_JSON,
     PUBLICATIONS_JSON,
     data_dir,
 )
@@ -78,8 +79,11 @@ def load_legacy_rows(path: Path) -> list[dict]:
 
 def write_analysis_json(output_folder: Path, rows: list[dict], compact: bool) -> None:
     output_folder.mkdir(parents=True, exist_ok=True)
-    write_json(output_folder / PUBLICATIONS_JSON, rows, compact)
-    write_json(output_folder / FILTERS_JSON, filters(), compact)
+    filter_options = filters()
+    publication_rows, publication_filters = split_publication_filters(rows, tuple(filter_options))
+    write_json(output_folder / PUBLICATIONS_JSON, publication_rows, compact)
+    write_json(output_folder / PUBLICATION_FILTERS_JSON, publication_filters, compact)
+    write_json(output_folder / FILTERS_JSON, filter_options, compact)
     write_json(output_folder / FILTER_HIGHLIGHT_TERMS_JSON, FILTER_HIGHLIGHT_TERMS, compact)
 
 
@@ -100,3 +104,18 @@ def filters() -> dict[str, list[str]]:
         "biological_material": list(BIOLOGICAL_MATERIAL_ORDER),
         "substrate_type": list(SUBSTRATE_TYPE_ORDER),
     }
+
+
+def split_publication_filters(rows: list[dict], filter_fields: tuple[str, ...]) -> tuple[list[dict], list[dict]]:
+    filter_source_fields = {f"{field}_filter" for field in filter_fields}
+    publication_rows = []
+    publication_filters = []
+
+    for row in rows:
+        publication_rows.append({key: value for key, value in row.items() if key not in filter_source_fields})
+        publication_filters.append({
+            "authors": row["authors"],
+            **{field: row[f"{field}_filter"] for field in filter_fields},
+        })
+
+    return publication_rows, publication_filters

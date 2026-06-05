@@ -5,6 +5,7 @@ from pathlib import Path
 
 DATA_DIR_NAME = "data"
 PUBLICATIONS_JSON = "publications.json"
+PUBLICATION_FILTERS_JSON = "publication_filters.json"
 FILTERS_JSON = "filters.json"
 FILTER_HIGHLIGHT_TERMS_JSON = "filter_highlight_terms.json"
 

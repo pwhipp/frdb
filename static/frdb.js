@@ -1,25 +1,6 @@
-const filterFields = {
-    recovery_methods: {
-        title: "Recovery methods",
-        rowField: "recovery_methods_filter",
-    },
-    equipment_tested: {
-        title: "Equipment tested",
-        rowField: "equipment_tested_filter",
-    },
-    biological_material: {
-        title: "Biological material",
-        rowField: "biological_material_filter",
-    },
-    substrate_type: {
-        title: "Substrate type",
-        rowField: "substrate_type_filter",
-    },
-};
-
 const activeFilters = {};
 const filterHighlightTerms = readEmbeddedJson("filterHighlightTermsData");
-let filterOptions = {}, filterCounts = {}, filterModal, currentFilterField = null, table;
+let filterOptions = {}, filterCounts = {}, publicationFiltersByAuthor = new Map(), filterModal, currentFilterField = null, table;
 
 document.addEventListener("DOMContentLoaded", async () => {
     filterModal = new bootstrap.Modal(document.getElementById("filterModal"));
@@ -32,7 +13,8 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     const payload = await response.json();
     filterOptions = payload.filters;
-    filterCounts = buildFilterCounts(payload.rows);
+    publicationFiltersByAuthor = buildPublicationFiltersByAuthor(payload.publication_filters);
+    filterCounts = buildFilterCounts();
     initialiseTable(payload.rows);
 });
 
@@ -94,7 +76,7 @@ function filterColumn(title, field, width) {
         titleFormatter: () => filterTitle(title, field),
         field,
         width,
-        formatter: filterableCellFormatter(field, `${field}_filter`),
+        formatter: filterableCellFormatter(field),
     };
 }
 
@@ -120,11 +102,11 @@ function plainPreWrapFormatter(field) {
     return (cell) => `<div class="cell-prewrap">${escapeHtml(cell.getData()[field] || "")}</div>`;
 }
 
-function filterableCellFormatter(activeFilterField, rowFilterField) {
+function filterableCellFormatter(activeFilterField) {
     return (cell) => {
         const row = cell.getData();
         const selected = activeFilters[activeFilterField];
-        const filterItems = row[rowFilterField] || [];
+        const filterItems = publicationFilterValues(row.authors, activeFilterField);
         const matchedItems = selected === undefined
             ? []
             : filterItems.filter((item) => selected.has(item));
@@ -225,12 +207,11 @@ function attachFilterModalEvents() {
 
 function openFilterModal(field) {
     currentFilterField = field;
-    const definition = filterFields[field];
     const options = filterOptions[field] || [];
     const active = activeFilters[field];
     const selected = active === undefined ? new Set(options) : new Set(active);
 
-    document.getElementById("filterModalTitle").textContent = definition.title;
+    document.getElementById("filterModalTitle").textContent = titleForFilterField(field);
     document.getElementById("filterModalSubtitle").textContent = `${options.length} available values`;
     document.getElementById("filterSearch").value = "";
     document.getElementById("filterOptions").dataset.selected = JSON.stringify([...selected]);
@@ -304,7 +285,7 @@ function setAllVisibleOptions(checked) {
 }
 
 function clearAllFilters() {
-    for (const field of Object.keys(filterFields)) {
+    for (const field of Object.keys(filterOptions)) {
         activeFilters[field] = undefined;
     }
     applyFilters();
@@ -316,12 +297,12 @@ function applyFilters() {
         return;
     }
     table.setFilter((row) => {
-        for (const [field, definition] of Object.entries(filterFields)) {
+        for (const field of Object.keys(filterOptions)) {
             const selected = activeFilters[field];
             if (selected === undefined) {
                 continue;
             }
-            const values = row[definition.rowField] || [];
+            const values = publicationFilterValues(row.authors, field);
             if (!values.some((value) => selected.has(value))) {
                 return false;
             }
@@ -353,20 +334,36 @@ function updateRowCount(filteredCount, totalCount) {
     document.getElementById("rowCount").textContent = `${filteredCount}/${totalCount} rows`;
 }
 
-function buildFilterCounts(rows) {
+function buildFilterCounts() {
     const counts = {};
-    for (const [field, definition] of Object.entries(filterFields)) {
+    for (const field of Object.keys(filterOptions)) {
         counts[field] = {};
         for (const option of filterOptions[field] || []) {
             counts[field][option] = 0;
         }
-        for (const row of rows) {
-            for (const value of row[definition.rowField] || []) {
+        for (const publicationFilters of publicationFiltersByAuthor.values()) {
+            for (const value of publicationFilters[field] || []) {
                 counts[field][value] = (counts[field][value] || 0) + 1;
             }
         }
     }
     return counts;
+}
+
+function buildPublicationFiltersByAuthor(publicationFilters) {
+    const filtersByAuthor = new Map();
+    for (const publicationFilter of publicationFilters || []) {
+        filtersByAuthor.set(publicationFilter.authors, publicationFilter);
+    }
+    return filtersByAuthor;
+}
+
+function publicationFilterValues(authors, field) {
+    return publicationFiltersByAuthor.get(authors)?.[field] || [];
+}
+
+function titleForFilterField(field) {
+    return field.replaceAll("_", " ").replace(/^\w/, (letter) => letter.toUpperCase());
 }
 
 function readEmbeddedJson(id) {
