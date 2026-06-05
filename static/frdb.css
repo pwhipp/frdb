@@ -239,6 +239,35 @@ body {
     margin-bottom: 0.75rem;
 }
 
+.filter-select-heading {
+    display: flex;
+    align-items: center;
+    gap: 0.55rem;
+    margin-bottom: 0.25rem;
+    padding: 0.45rem 0.25rem;
+    border-bottom: 1px solid #dbe3ea;
+    color: #344054;
+    font-weight: 700;
+    cursor: pointer;
+}
+
+.filter-select-heading:hover,
+.filter-select-heading:focus-within {
+    background: #f8fafc;
+}
+
+.filter-select-heading .form-check-input {
+    margin-top: 0;
+}
+
+.filter-select-heading-count {
+    flex: 1 1 auto;
+    min-width: 0;
+    color: var(--app-muted);
+    font-size: 0.82rem;
+    font-weight: 600;
+}
+
 .filter-options {
     display: grid;
     gap: 0.25rem;

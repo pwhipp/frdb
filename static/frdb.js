@@ -199,8 +199,7 @@ document.addEventListener("click", (event) => {
 
 function attachFilterModalEvents() {
     document.getElementById("applyFilterButton").addEventListener("click", applyCurrentModalFilter);
-    document.getElementById("selectAllButton").addEventListener("click", () => setAllVisibleOptions(true));
-    document.getElementById("selectNoneButton").addEventListener("click", () => setAllVisibleOptions(false));
+    document.getElementById("filterSelectHeading").addEventListener("change", (event) => setAllVisibleOptions(event.target.checked));
     document.getElementById("clearFiltersButton").addEventListener("click", clearAllFilters);
     document.getElementById("filterSearch").addEventListener("input", () => renderFilterOptions());
 }
@@ -210,7 +209,6 @@ function openFilterModal(field) {
     const options = filterOptions[field] || [];
     const active = activeFilters[field];
     const selected = active === undefined ? new Set(options) : new Set(active);
-
     document.getElementById("filterModalTitle").textContent = titleForFilterField(field);
     document.getElementById("filterModalSubtitle").textContent = `${options.length} available values`;
     document.getElementById("filterSearch").value = "";
@@ -224,14 +222,12 @@ function renderFilterOptions() {
     const query = document.getElementById("filterSearch").value.trim().toLowerCase();
     const selected = new Set(JSON.parse(container.dataset.selected || "[]"));
     const options = (filterOptions[currentFilterField] || []).filter((option) => option.toLowerCase().includes(query));
-
     container.replaceChildren();
     for (const option of options) {
         const id = `filter-${currentFilterField}-${slugify(option)}`;
         const wrapper = document.createElement("label");
         wrapper.className = "filter-option";
         wrapper.setAttribute("for", id);
-
         const checkbox = document.createElement("input");
         checkbox.className = "form-check-input";
         checkbox.type = "checkbox";
@@ -246,19 +242,18 @@ function renderFilterOptions() {
                 updated.delete(option);
             }
             container.dataset.selected = JSON.stringify([...updated]);
+            updateFilterSelectHeading();
         });
-
         const label = document.createElement("span");
         label.className = "filter-option-label";
         label.textContent = option;
-
         const count = document.createElement("span");
         count.className = "filter-option-count";
         count.textContent = filterCounts[currentFilterField]?.[option] || 0;
-
         wrapper.append(checkbox, label, count);
         container.append(wrapper);
     }
+    updateFilterSelectHeading();
 }
 
 function applyCurrentModalFilter() {
@@ -273,15 +268,24 @@ function applyCurrentModalFilter() {
 function setAllVisibleOptions(checked) {
     const container = document.getElementById("filterOptions");
     const selected = new Set(JSON.parse(container.dataset.selected || "[]"));
+    const action = checked ? "add" : "delete";
     for (const checkbox of container.querySelectorAll("input[type='checkbox']")) {
         checkbox.checked = checked;
-        if (checked) {
-            selected.add(checkbox.value);
-        } else {
-            selected.delete(checkbox.value);
-        }
+        selected[action](checkbox.value);
     }
     container.dataset.selected = JSON.stringify([...selected]);
+    updateFilterSelectHeading();
+}
+
+function updateFilterSelectHeading() {
+    const heading = document.getElementById("filterSelectHeading");
+    const count = document.getElementById("filterSelectHeadingCount");
+    const checkboxes = [...document.querySelectorAll("#filterOptions input[type='checkbox']")];
+    const checkedCount = checkboxes.filter((checkbox) => checkbox.checked).length;
+    heading.disabled = checkboxes.length === 0;
+    heading.checked = checkboxes.length > 0 && checkedCount === checkboxes.length;
+    heading.indeterminate = checkedCount > 0 && checkedCount < checkboxes.length;
+    count.textContent = `${checkedCount}/${checkboxes.length} selected`;
 }
 
 function clearAllFilters() {

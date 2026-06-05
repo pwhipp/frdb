@@ -52,11 +52,11 @@
                 <div class="modal-body">
                     <div class="filter-tools">
                         <input class="form-control form-control-sm" id="filterSearch" type="search" placeholder="Search values" autocomplete="off">
-                        <div class="btn-group btn-group-sm" role="group" aria-label="Filter selection tools">
-                            <button class="btn btn-outline-secondary" id="selectAllButton" type="button">Select all</button>
-                            <button class="btn btn-outline-secondary" id="selectNoneButton" type="button">Select none</button>
-                        </div>
                     </div>
+                    <label class="filter-select-heading" for="filterSelectHeading">
+                        <input class="form-check-input" id="filterSelectHeading" type="checkbox" aria-label="Toggle filter options">
+                        <span class="filter-select-heading-count" id="filterSelectHeadingCount"></span>
+                    </label>
                     <div class="filter-options" id="filterOptions"></div>
                 </div>
                 <div class="modal-footer">
