@@ -71,9 +71,9 @@
                                         <div class="ranking-meta">
                                             <span class="ranking-meta-item">{{ study_link(item.publication_ids, item.unique_studies) }} {{ study_noun(item.unique_studies) }}</span>
                                             <span class="ranking-meta-separator">·</span>
-                                            <span class="ranking-meta-item">{{ contribution_link(item.win_key, item.wins) }}/{{ contribution_link(item.loss_key, item.losses) }}/{{ contribution_link(item.tie_key, item.ties) }} wins/losses/ties</span>
+                                            <span class="ranking-meta-item">{{ contribution_link(item.win_key, item.wins) }}/{{ contribution_link(item.loss_key, item.losses) }}/{{ contribution_link(item.tie_key, item.ties) }} win/loss/tie</span>
                                             <span class="ranking-meta-separator">·</span>
-                                            <span class="ranking-meta-item">{{ item.significant_wins }}/{{ item.significant_losses }} significant wins/losses</span>
+                                            <span class="ranking-meta-item">{{ item.significant_wins }}/{{ item.significant_losses }} significant</span>
                                         </div>
                                     </li>
                                 {% endfor %}
