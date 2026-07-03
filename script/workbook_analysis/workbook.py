@@ -15,10 +15,10 @@ class ParsedWorkbook:
     comparisons: list[dict[str, str]]
 
 
-def parse_workbook(path: Path, comparisons_path: Path) -> ParsedWorkbook:
+def parse_workbook(path: Path, comparisons_path: Path, comparisons_sheet: str = "Comparisons") -> ParsedWorkbook:
     rows = read_excel(path)
     return ParsedWorkbook(
         rows=rows,
         publication_filters=derive_publication_filters(rows),
-        comparisons=parse_comparisons(comparisons_path, rows),
+        comparisons=parse_comparisons(comparisons_path, rows, comparisons_sheet),
     )

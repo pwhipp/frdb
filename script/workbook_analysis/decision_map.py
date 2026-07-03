@@ -134,13 +134,13 @@ def score_comparisons(
                 cell_key = (bio, surface)
                 if equivalent and len(tie_methods) >= 2:
                     for method in tie_methods & set(TARGET_METHODS):
-                        add_metric(metrics[cell_key], method, row, publication_id, tie=True, note=f"{row['source_excel_row']}: tie/equivalent evidence")
+                        add_metric(metrics[cell_key], method, row, publication_id, tie=True, note=f"{row['author']}: tie/equivalent evidence")
                     contribution = "tie"
                 else:
                     for method in better_methods & set(TARGET_METHODS):
-                        add_metric(metrics[cell_key], method, row, publication_id, delta=weight, win=True, significant=significant, note=f"{row['source_excel_row']}: {weight_note}")
+                        add_metric(metrics[cell_key], method, row, publication_id, delta=weight, win=True, significant=significant, note=f"{row['author']}: {weight_note}")
                     for method in worse_methods & set(TARGET_METHODS):
-                        add_metric(metrics[cell_key], method, row, publication_id, delta=-weight, loss=True, significant=significant, note=f"{row['source_excel_row']}: {weight_note}")
+                        add_metric(metrics[cell_key], method, row, publication_id, delta=-weight, loss=True, significant=significant, note=f"{row['author']}: {weight_note}")
                     contribution = "directional"
                 scored_rows.append(scored_comparison_row(row, bio, surface, better_methods, worse_methods, tie_methods, weight, contribution, publication_id))
 
@@ -179,7 +179,7 @@ def add_metric(metrics: dict, method: str, row: dict[str, str], publication_id: 
     metric["significant_wins"] += int(win and significant)
     metric["significant_losses"] += int(loss and significant)
     metric["comparisons"] += 1
-    metric["studies"].add(row["source_excel_row"])
+    metric["studies"].add(row["author"])
     metric["publication_ids"].add(publication_id)
     metric["authors"].add(row["author"])
     if note:

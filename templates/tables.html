@@ -14,7 +14,10 @@
             <h1>{{ active_table.label }}</h1>
             <p>{{ active_table.description }}</p>
         </div>
-        <span class="row-count" id="rowCount">Loading...</span>
+        <div class="d-flex align-items-center gap-2">
+            <button class="btn btn-outline-secondary btn-sm d-none" id="detailColumnsButton" type="button" aria-pressed="false">Show details</button>
+            <span class="row-count" id="rowCount">Loading...</span>
+        </div>
     </header>
 
     {% if active_table.special_filters %}

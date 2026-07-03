@@ -5,6 +5,7 @@ const activeContributionKey = new URLSearchParams(window.location.search).get("c
 
 export function initialiseTable(payload, publicationController) {
     const rows = payload.rows || [];
+    const columns = payload.table.columns || [];
     const urlRowFilter = rowFilterFromUrl();
     const table = new Tabulator("#researchTable", {
         data: rows,
@@ -12,7 +13,7 @@ export function initialiseTable(payload, publicationController) {
         layout: "fitData",
         movableColumns: true,
         placeholder: "No matching rows",
-        columns: buildColumns(payload.table.columns || [], publicationController),
+        columns: buildColumns(columns, publicationController),
     });
 
     table.on("tableBuilt", () => {
@@ -24,6 +25,7 @@ export function initialiseTable(payload, publicationController) {
         if (urlRowFilter) {
             table.setFilter(urlRowFilter);
         }
+        attachDetailColumnToggle(table, columns);
     });
     table.on("dataFiltered", (filters, matchingRows) => updateRowCount(matchingRows.length, rows.length));
     updateRowCount(rows.length, rows.length);
@@ -50,6 +52,7 @@ function columnDefinition(column, publicationController) {
         field: column.field,
         width: column.width,
         frozen: Boolean(column.frozen),
+        visible: !column.default_hidden,
         formatter: plainPreWrapFormatter(column.field),
     };
 
@@ -68,6 +71,38 @@ function columnDefinition(column, publicationController) {
         definition.formatter = publicationController.filterableCellFormatter(column.field);
     }
     return definition;
+}
+
+function attachDetailColumnToggle(table, columns) {
+    const button = document.getElementById("detailColumnsButton");
+    const fields = columns.filter((column) => column.default_hidden).map((column) => column.field);
+    if (!button || fields.length === 0) {
+        return;
+    }
+
+    let detailsVisible = false;
+    button.classList.remove("d-none");
+    button.addEventListener("click", () => {
+        detailsVisible = !detailsVisible;
+        for (const field of fields) {
+            const column = table.getColumn(field);
+            if (!column) {
+                continue;
+            }
+            if (detailsVisible) {
+                column.show();
+            } else {
+                column.hide();
+            }
+        }
+        updateDetailColumnButton(button, detailsVisible);
+    });
+    updateDetailColumnButton(button, detailsVisible);
+}
+
+function updateDetailColumnButton(button, detailsVisible) {
+    button.textContent = detailsVisible ? "Hide details" : "Show details";
+    button.setAttribute("aria-pressed", String(detailsVisible));
 }
 
 function authorFormatter(cell) {

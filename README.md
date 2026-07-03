@@ -5,21 +5,39 @@ The goal of this database is to present users with published forensic recovery m
 - determine the best recovery method given a particular substrate and biological fluid
 - identify gaps or omissions in the existing research
 
-## Development notes
+## Research Data Analysis
 
-### Updating the research data
+### Source workbook and generated data
 
-Research JSON is generated from two workbook sources. Do not edit generated JSON files by hand.
+Research JSON is generated from one reviewed workbook. Do not edit generated JSON files by hand.
 
-- `/home/paul/wk/frdb/interactive_evidence_recovery_comparison_results.xlsx` is the publication-level source workbook.
-- `/home/paul/wk/frdb/recovery_comparisons.xlsx` is the curated comparison workbook used by the decision map.
+- `interactive_evidence_recovery_comparison.xlsx` is the canonical source workbook.
+- The first sheet, `studies`, contains the publication-level source rows used by the Publications table.
+- The `Comparisons` sheet contains the reviewed structured comparison rows used by the decision map.
 
-The comparison workbook is needed because the publication workbook stores study outcomes as narrative text. The decision map requires structured, study-level comparison rows: substrate class, biological material class, better/worse recovery method, and statistical significance. Those fields require forensic interpretation and should be reviewed as curated data, not silently inferred during application startup.
+The old two-workbook flow with `recovery_comparisons.xlsx` is deprecated. Keep the reviewed comparisons in the same workbook as the studies so users can verify each comparison against the source study details without maintaining row-number references across files.
 
-To regenerate the canonical data files after both workbooks are current:
+The `Comparisons.author` value is the study reference. Study authors in the `studies` sheet must be unique, and every comparison author must exactly match a study author.
+
+Validate the workbook before generating data:
 
 ```bash
-.venv/bin/python script/analyze_workbook.py /home/paul/wk/frdb/interactive_evidence_recovery_comparison_results.xlsx --comparisons-workbook /home/paul/wk/frdb/recovery_comparisons.xlsx
+.venv/bin/python script/validate_workbook.py interactive_evidence_recovery_comparison.xlsx
+```
+
+The validator reports:
+
+- duplicate study authors
+- comparison sheet columns in the wrong order
+- comparison rows whose `author` does not match a study
+- studies with no comparison rows
+- missing required comparison fields
+- duplicate comparison rows
+
+To regenerate the canonical data files after validation passes:
+
+```bash
+.venv/bin/python script/analyze_workbook.py interactive_evidence_recovery_comparison.xlsx
 ```
 
 The script writes these files by default:
@@ -31,33 +49,87 @@ The script writes these files by default:
 - `data/decision_map.json`: home-page decision map, rankings, scoring README, and explanatory README content.
 - `data/tables.json`: service table catalog and generated intermediate tables.
 
-Use `--output-folder path/to/data` to write to a different folder. Use `--compact` to write compact JSON instead of the default indented JSON.
+Use `--output-folder path/to/data` to write to a different folder. Use `--compact` to write compact JSON instead of the default indented JSON. Use `--comparisons-sheet SheetName` to validate or generate data from a non-canonical comparison sheet.
 
-### Regenerating `recovery_comparisons.xlsx`
-
-When the publication workbook changes, update `/home/paul/wk/frdb/recovery_comparisons.xlsx` before running `script/analyze_workbook.py`. Use Codex or another reviewed extraction workflow with this prompt:
-
-```text
-Review each study in ~/wk/frdb/interactive_evidence_recovery_comparison_results.xlsx. Classify the substrate as porous or non-porous. Classify the biological material using the FRDB material classes where possible: touch DNA, blood, saliva, buccal cells, gDNA, extracted DNA, cfDNA, semen, sweat, buffy coat, or various. Classify the equipment/recovery method as tape lift, moist swab, wet swab, wet-dry swab, swab with unspecified moisture, or other recovery method. For each study, for each recovery method comparison in the study list the author, substrate, biological material, better recovery method, worse recovery method, statistical significance. Generate a new spreadsheet containing this data ~/wk/frdb/recovery_comparisons.xlsx.
-```
+### `Comparisons` sheet
 
 The expected `Comparisons` sheet columns are:
 
-- `source_excel_row`
 - `author`
+
+Summary columns:
+
 - `substrate_class`
-- `substrate_detail`
 - `biological_material_class`
-- `biological_material_detail`
-- `better_recovery_method`
 - `better_method_class`
-- `worse_recovery_method`
 - `worse_method_class`
 - `statistical_significance`
+
+Detail columns:
+
+- `substrate_detail`
+- `biological_material_detail`
+- `better_recovery_method`
+- `worse_recovery_method`
 - `comparison_scope`
 - `notes_source_result_summary`
 
-The data-generation script validates that every comparison row references a publication in the current source workbook and that `source_excel_row` values match the current workbook row numbers.
+Use dropdowns for controlled classification fields where practical:
+
+- `substrate_class`
+- `biological_material_class`
+- `better_method_class`
+- `worse_method_class`
+- `statistical_significance`
+
+Do not use dropdowns for descriptive provenance fields such as `substrate_detail`, `biological_material_detail`, `better_recovery_method`, `worse_recovery_method`, `comparison_scope`, or `notes_source_result_summary`; those fields need source-specific wording.
+
+Dropdowns are useful because method class and significance wording affects decision-map scoring. Keep the dropdown values aligned with the scoring rules before making the validator reject uncontrolled values. If a source result genuinely combines multiple method classes, prefer splitting it into separate comparison rows. If it cannot be split without overclaiming, use a clear combined value with ` / ` between controlled classes.
+
+### Using AI to create initial comparisons
+
+AI output is a draft extraction aid, not canonical data. Human review is required before using any AI-generated sheet for canonical data generation.
+
+Create draft rows in a separate sheet such as `Comparisons_AI_Draft`, then compare them with the reviewed `Comparisons` sheet. Validate a draft sheet without replacing the canonical sheet:
+
+```bash
+.venv/bin/python script/validate_workbook.py interactive_evidence_recovery_comparison.xlsx --comparisons-sheet Comparisons_AI_Draft
+```
+
+Prompt for a full draft comparison sheet:
+
+```text
+Review each study in interactive_evidence_recovery_comparison.xlsx.
+Use the studies sheet as the source evidence and create a draft comparison sheet named Comparisons_AI_Draft.
+For each study, create one row for each recovery-method comparison supported by the source result summary.
+Use the existing Comparisons columns exactly and in the same order.
+The author value must exactly match the studies sheet author.
+Classify substrate, biological material, recovery method classes, and statistical significance conservatively.
+Preserve source-specific method and material wording in the detail fields.
+Do not infer significance beyond the source result summary; if pairwise p-values are not stated, say so.
+Do not delete or modify the reviewed Comparisons sheet.
+```
+
+Prompt for only studies that do not yet have comparisons:
+
+```text
+Review interactive_evidence_recovery_comparison.xlsx.
+Compare the studies sheet with the existing Comparisons sheet by exact author value.
+Create draft comparison rows only for studies whose author does not already appear in Comparisons.
+Use the existing Comparisons columns exactly and in the same order, and write the draft rows to a new sheet named Comparisons_AI_Missing.
+Do not modify existing comparison rows.
+If every study already has at least one comparison, report that no draft rows are needed.
+```
+
+Validate a missing-only draft sheet with partial coverage allowed:
+
+```bash
+.venv/bin/python script/validate_workbook.py interactive_evidence_recovery_comparison.xlsx --comparisons-sheet Comparisons_AI_Missing --allow-missing-comparisons
+```
+
+After review, copy accepted draft rows into `Comparisons`, run the validator, then regenerate the canonical data.
+
+## Development Notes
 
 ### Running a local test environment
 

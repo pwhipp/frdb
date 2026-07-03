@@ -15,24 +15,32 @@ from data.files import (
     data_dir,
 )
 
-from .comparisons import COMPARISON_FIELDS
+from .comparisons import COMPARISON_DETAIL_FIELDS, COMPARISON_FIELDS
 from .decision_map import build_decision_map
 from .publication_filters import available_filter_values
 from .rules import FILTER_HIGHLIGHT_TERMS
 
 
-def table_columns(fields, frozen: set[str] | None = None) -> list[dict]:
+def table_columns(fields, frozen: set[str] | None = None, default_hidden: set[str] | None = None) -> list[dict]:
     frozen = frozen or set()
+    default_hidden = default_hidden or set()
     return [
         {
             "title": title_for_field(field),
             "field": field,
             "width": width_for_field(field),
             "frozen": field in frozen,
+            **default_visibility_for_field(field, default_hidden),
             **formatter_for_field(field),
         }
         for field in fields
     ]
+
+
+def default_visibility_for_field(field: str, default_hidden: set[str]) -> dict:
+    if field in default_hidden:
+        return {"default_hidden": True}
+    return {}
 
 
 def formatter_for_field(field: str) -> dict:
@@ -81,7 +89,7 @@ PUBLICATION_COLUMNS = [
     {"title": "STR analysis", "field": "str_analysis", "width": 115},
     {"title": "Results", "field": "results", "width": 820},
 ]
-VISIBLE_COMPARISON_FIELDS = tuple(field for field in COMPARISON_FIELDS if field != "source_excel_row")
+VISIBLE_COMPARISON_FIELDS = COMPARISON_FIELDS
 SCORED_COMPARISON_FIELDS = (
     *VISIBLE_COMPARISON_FIELDS,
     "decision_bio",
@@ -91,13 +99,20 @@ SCORED_COMPARISON_FIELDS = (
     "normalized_tie_methods",
     "score_contribution_summary",
 )
+SCORED_COMPARISON_DETAIL_FIELDS = (
+    "decision_bio",
+    "decision_surface",
+    "normalized_better_methods",
+    "normalized_worse_methods",
+    "normalized_tie_methods",
+)
 
 TABLE_CATALOG = [
     {"id": "publications", "label": "Publications", "description": "Source publication rows from the interactive evidence workbook.", "columns": PUBLICATION_COLUMNS, "special_filters": True},
-    {"id": "recovery_comparisons", "label": "Recovery comparisons", "description": "Curated method-comparison rows used as decision-map source evidence.", "columns": [author_link_column("author"), *table_columns(tuple(field for field in VISIBLE_COMPARISON_FIELDS if field != "author"))]},
+    {"id": "recovery_comparisons", "label": "Recovery comparisons", "description": "Curated method-comparison rows used as decision-map source evidence.", "columns": [author_link_column("author"), *table_columns(tuple(field for field in VISIBLE_COMPARISON_FIELDS if field != "author"), default_hidden=set(COMPARISON_DETAIL_FIELDS))]},
     {"id": "decision_cells", "label": "Decision cells", "description": "Long-form decision-map cells by biological material and surface.", "columns": table_columns(("biological_material", "surface", "top_requested_method", "confidence", "unique_studies_requested_methods", "unique_studies_including_unspecified_swab", "requested_method_ranking", "ranking_with_unspecified_swab_bucket", "confidence_rationale"), frozen={"biological_material", "surface"})},
     {"id": "technique_rankings", "label": "Technique rankings", "description": "Scored technique rankings for each decision cell.", "columns": table_columns(("biological_material", "surface", "method", "score", "unique_studies", "comparison_contributions", "wins", "losses", "ties", "significant_wins", "significant_losses", "supporting_authors", "trace_notes"), frozen={"biological_material", "surface", "method"})},
-    {"id": "scored_comparisons", "label": "Scored comparisons", "description": "Trace table showing how each comparison row contributes to the decision map.", "columns": [author_link_column("author"), *table_columns(tuple(field for field in SCORED_COMPARISON_FIELDS if field != "author"))]},
+    {"id": "scored_comparisons", "label": "Scored comparisons", "description": "Trace table showing how each comparison row contributes to the decision map.", "columns": [author_link_column("author"), *table_columns(tuple(field for field in SCORED_COMPARISON_FIELDS if field != "author"), default_hidden=set(COMPARISON_DETAIL_FIELDS + SCORED_COMPARISON_DETAIL_FIELDS))]},
     {"id": "method_normalization", "label": "Method normalization", "description": "Normalization rules used before scoring.", "columns": table_columns(("normalized_method", "mapping_rule", "aggregation_note"), frozen={"normalized_method"})},
     {"id": "scoring_readme", "label": "Scoring rules", "description": "Scoring and confidence rules used by the decision map.", "columns": table_columns(("rule", "score_effect"), frozen={"rule"})},
 ]
@@ -215,7 +230,7 @@ def strip_private_fields(rows: list[dict]) -> list[dict]:
 
 def strip_table_internal_fields(rows: list[dict]) -> list[dict]:
     return [
-        {key: value for key, value in row.items() if key not in {"publication_ids", "source_excel_row"}}
+        {key: value for key, value in row.items() if key != "publication_ids"}
         for row in rows
     ]
 
@@ -230,7 +245,6 @@ def comparison_table_rows(comparisons: list[dict[str, str]], publications: list[
                 **comparison,
                 "publication_id": publication_id_by_author[comparison["author"]],
             }.items()
-            if key != "source_excel_row"
         })
     return rows
 

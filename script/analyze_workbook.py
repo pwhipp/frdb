@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
 from __future__ import annotations
 
 import argparse
@@ -15,9 +16,9 @@ from workbook_analysis.workbook import parse_workbook
 def main() -> None:
     arguments = parse_args()
     workbook_path = arguments.workbook.resolve()
-    comparisons_path = (arguments.comparisons_workbook or workbook_path.with_name("recovery_comparisons.xlsx")).resolve()
+    comparisons_path = (arguments.comparisons_workbook or workbook_path).resolve()
     output_folder = (arguments.output_folder or default_output_folder(REPO_ROOT)).resolve()
-    parsed_workbook = parse_workbook(workbook_path, comparisons_path)
+    parsed_workbook = parse_workbook(workbook_path, comparisons_path, arguments.comparisons_sheet)
     rows = assign_publication_ids(output_folder, workbook_path, parsed_workbook.rows)
     write_data_files(output_folder, rows, parsed_workbook.publication_filters, parsed_workbook.comparisons, arguments.compact)
     print(f"Wrote {len(rows)} publications to {output_folder}")
@@ -34,7 +35,12 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument(
         "--comparisons-workbook",
         type=Path,
-        help="Path to recovery_comparisons.xlsx. Defaults to a sibling of the source workbook.",
+        help="Path to a workbook containing the comparison sheet. Defaults to the source workbook.",
+    )
+    parser.add_argument(
+        "--comparisons-sheet",
+        default="Comparisons",
+        help="Name of the comparison worksheet to read. Defaults to Comparisons.",
     )
     parser.add_argument(
         "--compact",
