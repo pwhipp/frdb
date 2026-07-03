@@ -41,6 +41,39 @@
             </p>
         </section>
 
+        <section class="decision-explainer" aria-label="Decision map explanation">
+            <details class="explainer-panel decision-accordion">
+                <summary>
+                    <span class="accordion-title">How to read this map</span>
+                    <span class="accordion-indicator" aria-hidden="true"></span>
+                </summary>
+                <div class="accordion-content">
+                    {% for item in decision_map.readme %}
+                        <section class="explainer-item">
+                            <h3>{{ item.item }}</h3>
+                            <p>{{ item.description }}</p>
+                        </section>
+                    {% endfor %}
+                </div>
+            </details>
+            <details class="explainer-panel decision-accordion scoring-panel">
+                <summary>
+                    <span class="accordion-title">Scoring rules</span>
+                    <span class="accordion-indicator" aria-hidden="true"></span>
+                </summary>
+                <div class="accordion-content">
+                    <dl class="scoring-list">
+                        {% for item in decision_map.scoring_readme %}
+                            <div>
+                                <dt>{{ item.rule }}</dt>
+                                <dd>{{ item.score_effect }}</dd>
+                            </div>
+                        {% endfor %}
+                    </dl>
+                </div>
+            </details>
+        </section>
+
         <section class="decision-grid" aria-label="Recovery decision map">
             <div class="decision-grid-heading">Biological material</div>
             {% for surface in decision_map.surface_order %}
@@ -88,29 +121,6 @@
                     </article>
                 {% endfor %}
             {% endfor %}
-        </section>
-
-        <section class="decision-explainer" aria-label="Decision map explanation">
-            <div class="explainer-panel">
-                <h2>How to read this map</h2>
-                {% for item in decision_map.readme %}
-                    <section class="explainer-item">
-                        <h3>{{ item.item }}</h3>
-                        <p>{{ item.description }}</p>
-                    </section>
-                {% endfor %}
-            </div>
-            <div class="explainer-panel scoring-panel">
-                <h2>Scoring rules</h2>
-                <dl class="scoring-list">
-                    {% for item in decision_map.scoring_readme %}
-                        <div>
-                            <dt>{{ item.rule }}</dt>
-                            <dd>{{ item.score_effect }}</dd>
-                        </div>
-                    {% endfor %}
-                </dl>
-            </div>
         </section>
     </main>
 {% endblock %}
