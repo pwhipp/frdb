@@ -1,0 +1,45 @@
+{
+    "recovery_methods": [
+        "Tape lift",
+        "Moist swab",
+        "Wet swab",
+        "Wet-dry swab",
+        "Swab (unspecified)",
+        "Other"
+    ],
+    "equipment_tested": [
+        "Cotton swab",
+        "Nylon/flocked swab",
+        "Rayon swab",
+        "Foam swab",
+        "Polyester swab",
+        "Tape lift/minitape",
+        "Adhesive tape",
+        "M-Vac/wet vacuum",
+        "Dry vacuum",
+        "Pulse lavage",
+        "Direct PCR/microFLOQ",
+        "Filter/FTA paper",
+        "Scraping/excision",
+        "Direct lysis/extraction",
+        "Soaking/rinse"
+    ],
+    "biological_material": [
+        "Touch DNA",
+        "Blood",
+        "Saliva",
+        "Buccal cells",
+        "gDNA",
+        "Extracted DNA",
+        "cfDNA",
+        "Semen",
+        "Sweat",
+        "Buffy coat",
+        "Various"
+    ],
+    "substrate_type": [
+        "Porous",
+        "Non-porous",
+        "n/a"
+    ]
+}

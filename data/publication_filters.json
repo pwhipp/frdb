@@ -1,0 +1,917 @@
+[
+    {
+        "authors": "Abdullah et al., 2023",
+        "recovery_methods": [
+            "Moist swab",
+            "Wet swab",
+            "Wet-dry swab"
+        ],
+        "equipment_tested": [
+            "Cotton swab"
+        ],
+        "biological_material": [
+            "Blood"
+        ],
+        "substrate_type": [
+            "Porous",
+            "Non-porous"
+        ]
+    },
+    {
+        "authors": "Biggin et al., 2022",
+        "recovery_methods": [
+            "Swab (unspecified)",
+            "Other"
+        ],
+        "equipment_tested": [
+            "Cotton swab",
+            "Filter/FTA paper",
+            "Scraping/excision"
+        ],
+        "biological_material": [
+            "Blood"
+        ],
+        "substrate_type": [
+            "Porous"
+        ]
+    },
+    {
+        "authors": "Blackmore et al., 2024",
+        "recovery_methods": [
+            "Tape lift",
+            "Swab (unspecified)",
+            "Other"
+        ],
+        "equipment_tested": [
+            "Rayon swab",
+            "Tape lift/minitape",
+            "M-Vac/wet vacuum"
+        ],
+        "biological_material": [
+            "Touch DNA",
+            "Saliva"
+        ],
+        "substrate_type": [
+            "Porous",
+            "Non-porous"
+        ]
+    },
+    {
+        "authors": "Bonsu et al., 2021a",
+        "recovery_methods": [
+            "Moist swab"
+        ],
+        "equipment_tested": [
+            "Rayon swab"
+        ],
+        "biological_material": [
+            "gDNA"
+        ],
+        "substrate_type": [
+            "Non-porous"
+        ]
+    },
+    {
+        "authors": "Bonsu et al., 2021b",
+        "recovery_methods": [
+            "Wet swab"
+        ],
+        "equipment_tested": [
+            "Rayon swab"
+        ],
+        "biological_material": [
+            "Touch DNA"
+        ],
+        "substrate_type": [
+            "Non-porous"
+        ]
+    },
+    {
+        "authors": "Bright & Petricevic, 2004",
+        "recovery_methods": [
+            "Tape lift",
+            "Wet-dry swab",
+            "Other"
+        ],
+        "equipment_tested": [
+            "Tape lift/minitape",
+            "Soaking/rinse"
+        ],
+        "biological_material": [
+            "Touch DNA"
+        ],
+        "substrate_type": [
+            "Porous"
+        ]
+    },
+    {
+        "authors": "Bruijns et al., 2018",
+        "recovery_methods": [
+            "Swab (unspecified)"
+        ],
+        "equipment_tested": [
+            "Cotton swab",
+            "Nylon/flocked swab",
+            "Rayon swab",
+            "Foam swab",
+            "Polyester swab"
+        ],
+        "biological_material": [
+            "Saliva",
+            "Extracted DNA"
+        ],
+        "substrate_type": [
+            "n/a"
+        ]
+    },
+    {
+        "authors": "Burmuzoska et al., 2022",
+        "recovery_methods": [
+            "Tape lift",
+            "Swab (unspecified)"
+        ],
+        "equipment_tested": [
+            "Rayon swab",
+            "Tape lift/minitape"
+        ],
+        "biological_material": [
+            "Saliva"
+        ],
+        "substrate_type": [
+            "Porous",
+            "Non-porous"
+        ]
+    },
+    {
+        "authors": "Cahill & Chapman, 2020",
+        "recovery_methods": [
+            "Swab (unspecified)",
+            "Other"
+        ],
+        "equipment_tested": [
+            "Nylon/flocked swab",
+            "Rayon swab",
+            "Foam swab"
+        ],
+        "biological_material": [
+            "Saliva"
+        ],
+        "substrate_type": [
+            "Porous"
+        ]
+    },
+    {
+        "authors": "Chaudhry & Kavlick, 2023",
+        "recovery_methods": [
+            "Other"
+        ],
+        "equipment_tested": [
+            "M-Vac/wet vacuum",
+            "Pulse lavage"
+        ],
+        "biological_material": [
+            "Blood"
+        ],
+        "substrate_type": [
+            "Porous",
+            "Non-porous"
+        ]
+    },
+    {
+        "authors": "Czado et al., 2024",
+        "recovery_methods": [
+            "Wet swab",
+            "Wet-dry swab",
+            "Other"
+        ],
+        "equipment_tested": [
+            "Cotton swab",
+            "Nylon/flocked swab",
+            "Direct PCR/microFLOQ",
+            "Direct lysis/extraction",
+            "Soaking/rinse"
+        ],
+        "biological_material": [
+            "Buccal cells"
+        ],
+        "substrate_type": [
+            "Non-porous"
+        ]
+    },
+    {
+        "authors": "Dangsriwan et al., 2017",
+        "recovery_methods": [
+            "Tape lift",
+            "Wet swab",
+            "Other"
+        ],
+        "equipment_tested": [
+            "Cotton swab",
+            "Nylon/flocked swab",
+            "Tape lift/minitape",
+            "Direct PCR/microFLOQ",
+            "Direct lysis/extraction"
+        ],
+        "biological_material": [
+            "Touch DNA"
+        ],
+        "substrate_type": [
+            "Non-porous"
+        ]
+    },
+    {
+        "authors": "Ekka, Shadil & Patel, 2024",
+        "recovery_methods": [
+            "Other"
+        ],
+        "equipment_tested": [
+            "Direct lysis/extraction"
+        ],
+        "biological_material": [
+            "Touch DNA",
+            "Buccal cells"
+        ],
+        "substrate_type": [
+            "Porous"
+        ]
+    },
+    {
+        "authors": "Giovanelli et al., 2021",
+        "recovery_methods": [
+            "Swab (unspecified)"
+        ],
+        "equipment_tested": [
+            "Cotton swab",
+            "Nylon/flocked swab"
+        ],
+        "biological_material": [
+            "Touch DNA"
+        ],
+        "substrate_type": [
+            "Non-porous"
+        ]
+    },
+    {
+        "authors": "Gunnarsson et al., 2009",
+        "recovery_methods": [
+            "Tape lift",
+            "Other"
+        ],
+        "equipment_tested": [
+            "Tape lift/minitape",
+            "Scraping/excision"
+        ],
+        "biological_material": [
+            "Various"
+        ],
+        "substrate_type": [
+            "Porous",
+            "Non-porous"
+        ]
+    },
+    {
+        "authors": "Hansson et al., 2009",
+        "recovery_methods": [
+            "Tape lift",
+            "Swab (unspecified)"
+        ],
+        "equipment_tested": [
+            "Cotton swab",
+            "Nylon/flocked swab",
+            "Tape lift/minitape",
+            "Adhesive tape"
+        ],
+        "biological_material": [
+            "Touch DNA"
+        ],
+        "substrate_type": [
+            "Porous",
+            "Non-porous"
+        ]
+    },
+    {
+        "authors": "Hartless et al., 2019",
+        "recovery_methods": [
+            "Wet-dry swab"
+        ],
+        "equipment_tested": [
+            "Cotton swab",
+            "Foam swab",
+            "Polyester swab"
+        ],
+        "biological_material": [
+            "Touch DNA"
+        ],
+        "substrate_type": [
+            "Porous",
+            "Non-porous"
+        ]
+    },
+    {
+        "authors": "Hedman et al., 2020",
+        "recovery_methods": [
+            "Wet-dry swab"
+        ],
+        "equipment_tested": [
+            "Cotton swab"
+        ],
+        "biological_material": [
+            "Saliva"
+        ],
+        "substrate_type": [
+            "Porous",
+            "Non-porous"
+        ]
+    },
+    {
+        "authors": "Hedman et al., 2021",
+        "recovery_methods": [
+            "Swab (unspecified)"
+        ],
+        "equipment_tested": [
+            "Cotton swab",
+            "Nylon/flocked swab",
+            "Foam swab"
+        ],
+        "biological_material": [
+            "Saliva"
+        ],
+        "substrate_type": [
+            "Porous",
+            "Non-porous"
+        ]
+    },
+    {
+        "authors": "Hess & Haas, 2017",
+        "recovery_methods": [
+            "Tape lift",
+            "Wet swab",
+            "Other"
+        ],
+        "equipment_tested": [
+            "Cotton swab",
+            "Tape lift/minitape",
+            "Scraping/excision"
+        ],
+        "biological_material": [
+            "Touch DNA"
+        ],
+        "substrate_type": [
+            "Porous"
+        ]
+    },
+    {
+        "authors": "Hymus et al., 2024",
+        "recovery_methods": [
+            "Tape lift"
+        ],
+        "equipment_tested": [
+            "Tape lift/minitape",
+            "Adhesive tape"
+        ],
+        "biological_material": [
+            "Touch DNA",
+            "Blood",
+            "Buccal cells"
+        ],
+        "substrate_type": [
+            "Porous"
+        ]
+    },
+    {
+        "authors": "Kaesler et al., 2023",
+        "recovery_methods": [
+            "Wet-dry swab"
+        ],
+        "equipment_tested": [
+            "Nylon/flocked swab",
+            "Soaking/rinse"
+        ],
+        "biological_material": [
+            "Touch DNA"
+        ],
+        "substrate_type": [
+            "Non-porous"
+        ]
+    },
+    {
+        "authors": "Kallupurackal et al., 2021",
+        "recovery_methods": [
+            "Tape lift",
+            "Wet swab",
+            "Wet-dry swab"
+        ],
+        "equipment_tested": [
+            "Cotton swab",
+            "Nylon/flocked swab",
+            "Tape lift/minitape"
+        ],
+        "biological_material": [
+            "Touch DNA"
+        ],
+        "substrate_type": [
+            "Non-porous"
+        ]
+    },
+    {
+        "authors": "Kanokwongnuwut et al., 2020",
+        "recovery_methods": [
+            "Tape lift"
+        ],
+        "equipment_tested": [
+            "Tape lift/minitape",
+            "Adhesive tape"
+        ],
+        "biological_material": [
+            "Touch DNA"
+        ],
+        "substrate_type": [
+            "Porous",
+            "Non-porous"
+        ]
+    },
+    {
+        "authors": "Kenna et al., 2011",
+        "recovery_methods": [
+            "Tape lift",
+            "Swab (unspecified)"
+        ],
+        "equipment_tested": [
+            "Cotton swab",
+            "Tape lift/minitape",
+            "Adhesive tape"
+        ],
+        "biological_material": [
+            "Saliva"
+        ],
+        "substrate_type": [
+            "Non-porous"
+        ]
+    },
+    {
+        "authors": "Kirgiz & Calloway, 2017",
+        "recovery_methods": [
+            "Tape lift",
+            "Wet-dry swab",
+            "Other"
+        ],
+        "equipment_tested": [
+            "Cotton swab",
+            "Tape lift/minitape",
+            "Adhesive tape",
+            "Filter/FTA paper",
+            "Scraping/excision"
+        ],
+        "biological_material": [
+            "Touch DNA"
+        ],
+        "substrate_type": [
+            "Non-porous"
+        ]
+    },
+    {
+        "authors": "Kuffel et al., 2024",
+        "recovery_methods": [
+            "Swab (unspecified)",
+            "Other"
+        ],
+        "equipment_tested": [
+            "Cotton swab",
+            "Scraping/excision"
+        ],
+        "biological_material": [
+            "Blood",
+            "Saliva",
+            "cfDNA"
+        ],
+        "substrate_type": [
+            "Porous"
+        ]
+    },
+    {
+        "authors": "Kwok et al., 2023",
+        "recovery_methods": [
+            "Tape lift"
+        ],
+        "equipment_tested": [
+            "Tape lift/minitape",
+            "Adhesive tape"
+        ],
+        "biological_material": [
+            "Touch DNA"
+        ],
+        "substrate_type": [
+            "Non-porous"
+        ]
+    },
+    {
+        "authors": "Lim et al., 2016",
+        "recovery_methods": [
+            "Tape lift",
+            "Wet-dry swab"
+        ],
+        "equipment_tested": [
+            "Cotton swab",
+            "Tape lift/minitape"
+        ],
+        "biological_material": [
+            "Touch DNA",
+            "Buccal cells",
+            "Extracted DNA",
+            "Sweat"
+        ],
+        "substrate_type": [
+            "Non-porous"
+        ]
+    },
+    {
+        "authors": "Marshall et al., 2014",
+        "recovery_methods": [
+            "Swab (unspecified)"
+        ],
+        "equipment_tested": [
+            "Nylon/flocked swab"
+        ],
+        "biological_material": [
+            "Blood",
+            "Saliva",
+            "gDNA"
+        ],
+        "substrate_type": [
+            "Porous",
+            "Non-porous"
+        ]
+    },
+    {
+        "authors": "McLamb et al., 2020",
+        "recovery_methods": [
+            "Wet swab",
+            "Other"
+        ],
+        "equipment_tested": [
+            "Cotton swab",
+            "M-Vac/wet vacuum"
+        ],
+        "biological_material": [
+            "Blood"
+        ],
+        "substrate_type": [
+            "Porous",
+            "Non-porous"
+        ]
+    },
+    {
+        "authors": "Meakin et al., 2024",
+        "recovery_methods": [
+            "Tape lift",
+            "Other"
+        ],
+        "equipment_tested": [
+            "Tape lift/minitape",
+            "Scraping/excision"
+        ],
+        "biological_material": [
+            "Touch DNA"
+        ],
+        "substrate_type": [
+            "Porous"
+        ]
+    },
+    {
+        "authors": "Moore et al., 2021",
+        "recovery_methods": [
+            "Swab (unspecified)",
+            "Other"
+        ],
+        "equipment_tested": [
+            "Cotton swab",
+            "Direct lysis/extraction"
+        ],
+        "biological_material": [
+            "Touch DNA"
+        ],
+        "substrate_type": [
+            "Non-porous"
+        ]
+    },
+    {
+        "authors": "Morgan & Prinz, 2023",
+        "recovery_methods": [
+            "Wet-dry swab",
+            "Other"
+        ],
+        "equipment_tested": [
+            "Nylon/flocked swab",
+            "Polyester swab",
+            "Dry vacuum",
+            "Scraping/excision"
+        ],
+        "biological_material": [
+            "Touch DNA"
+        ],
+        "substrate_type": [
+            "Porous"
+        ]
+    },
+    {
+        "authors": "Phetpeng et al., 2015",
+        "recovery_methods": [
+            "Tape lift",
+            "Swab (unspecified)",
+            "Other"
+        ],
+        "equipment_tested": [
+            "Cotton swab",
+            "Nylon/flocked swab",
+            "Foam swab",
+            "Tape lift/minitape",
+            "Adhesive tape",
+            "Direct lysis/extraction",
+            "Soaking/rinse"
+        ],
+        "biological_material": [
+            "Blood",
+            "Buffy coat"
+        ],
+        "substrate_type": [
+            "Non-porous"
+        ]
+    },
+    {
+        "authors": "Plaza et al., 2016",
+        "recovery_methods": [
+            "Tape lift",
+            "Swab (unspecified)"
+        ],
+        "equipment_tested": [
+            "Cotton swab",
+            "Nylon/flocked swab",
+            "Foam swab",
+            "Polyester swab",
+            "Tape lift/minitape"
+        ],
+        "biological_material": [
+            "Touch DNA",
+            "Blood"
+        ],
+        "substrate_type": [
+            "Porous",
+            "Non-porous"
+        ]
+    },
+    {
+        "authors": "Prasad et al., 2020",
+        "recovery_methods": [
+            "Tape lift",
+            "Swab (unspecified)",
+            "Other"
+        ],
+        "equipment_tested": [
+            "Rayon swab",
+            "Tape lift/minitape",
+            "M-Vac/wet vacuum",
+            "Direct PCR/microFLOQ"
+        ],
+        "biological_material": [
+            "Saliva"
+        ],
+        "substrate_type": [
+            "Non-porous"
+        ]
+    },
+    {
+        "authors": "Prasad et al., 2022",
+        "recovery_methods": [
+            "Tape lift",
+            "Swab (unspecified)",
+            "Other"
+        ],
+        "equipment_tested": [
+            "Rayon swab",
+            "Tape lift/minitape",
+            "Soaking/rinse"
+        ],
+        "biological_material": [
+            "Touch DNA"
+        ],
+        "substrate_type": [
+            "Non-porous"
+        ]
+    },
+    {
+        "authors": "Radojicic et al., 2018",
+        "recovery_methods": [
+            "Swab (unspecified)",
+            "Other"
+        ],
+        "equipment_tested": [
+            "Soaking/rinse"
+        ],
+        "biological_material": [
+            "Touch DNA"
+        ],
+        "substrate_type": [
+            "Non-porous"
+        ]
+    },
+    {
+        "authors": "Seiberle et al., 2022",
+        "recovery_methods": [
+            "Swab (unspecified)"
+        ],
+        "equipment_tested": [
+            "Nylon/flocked swab"
+        ],
+        "biological_material": [
+            "Touch DNA",
+            "Blood",
+            "Saliva",
+            "Semen"
+        ],
+        "substrate_type": [
+            "Porous",
+            "Non-porous"
+        ]
+    },
+    {
+        "authors": "Sessa et al., 2019",
+        "recovery_methods": [
+            "Tape lift",
+            "Wet-dry swab",
+            "Other"
+        ],
+        "equipment_tested": [
+            "Tape lift/minitape",
+            "Adhesive tape",
+            "Scraping/excision"
+        ],
+        "biological_material": [
+            "Touch DNA"
+        ],
+        "substrate_type": [
+            "Porous"
+        ]
+    },
+    {
+        "authors": "Sterling et al., 2019",
+        "recovery_methods": [
+            "Tape lift",
+            "Swab (unspecified)"
+        ],
+        "equipment_tested": [
+            "Polyester swab",
+            "Tape lift/minitape",
+            "Adhesive tape"
+        ],
+        "biological_material": [
+            "Touch DNA"
+        ],
+        "substrate_type": [
+            "Non-porous"
+        ]
+    },
+    {
+        "authors": "Subhani et al., 2019",
+        "recovery_methods": [
+            "Wet-dry swab",
+            "Other"
+        ],
+        "equipment_tested": [
+            "Direct lysis/extraction"
+        ],
+        "biological_material": [
+            "Touch DNA"
+        ],
+        "substrate_type": [
+            "Non-porous"
+        ]
+    },
+    {
+        "authors": "Tasker et al., 2019",
+        "recovery_methods": [
+            "Swab (unspecified)"
+        ],
+        "equipment_tested": [
+            "Cotton swab",
+            "Nylon/flocked swab",
+            "Direct PCR/microFLOQ"
+        ],
+        "biological_material": [
+            "Buccal cells"
+        ],
+        "substrate_type": [
+            "Non-porous"
+        ]
+    },
+    {
+        "authors": "Tontarski et al., 2009",
+        "recovery_methods": [
+            "Swab (unspecified)",
+            "Other"
+        ],
+        "equipment_tested": [
+            "Polyester swab",
+            "Scraping/excision"
+        ],
+        "biological_material": [
+            "Blood"
+        ],
+        "substrate_type": [
+            "Porous",
+            "Non-porous"
+        ]
+    },
+    {
+        "authors": "Verdon et al., 2014",
+        "recovery_methods": [
+            "Tape lift"
+        ],
+        "equipment_tested": [
+            "Tape lift/minitape",
+            "Adhesive tape"
+        ],
+        "biological_material": [
+            "Touch DNA"
+        ],
+        "substrate_type": [
+            "Porous"
+        ]
+    },
+    {
+        "authors": "Verdon et al., 2014 (swabs)",
+        "recovery_methods": [
+            "Swab (unspecified)"
+        ],
+        "equipment_tested": [
+            "Cotton swab",
+            "Nylon/flocked swab",
+            "Rayon swab",
+            "Foam swab",
+            "Polyester swab"
+        ],
+        "biological_material": [
+            "Touch DNA",
+            "Blood",
+            "Saliva"
+        ],
+        "substrate_type": [
+            "Porous",
+            "Non-porous"
+        ]
+    },
+    {
+        "authors": "Vickar et al., 2018",
+        "recovery_methods": [
+            "Wet-dry swab",
+            "Other"
+        ],
+        "equipment_tested": [
+            "Cotton swab",
+            "M-Vac/wet vacuum"
+        ],
+        "biological_material": [
+            "Touch DNA",
+            "Saliva"
+        ],
+        "substrate_type": [
+            "Porous",
+            "Non-porous"
+        ]
+    },
+    {
+        "authors": "Wahrer et al., 2023",
+        "recovery_methods": [
+            "Tape lift",
+            "Swab (unspecified)",
+            "Other"
+        ],
+        "equipment_tested": [
+            "Tape lift/minitape",
+            "M-Vac/wet vacuum",
+            "Dry vacuum"
+        ],
+        "biological_material": [
+            "Touch DNA"
+        ],
+        "substrate_type": [
+            "Porous",
+            "Non-porous"
+        ]
+    },
+    {
+        "authors": "Williams et al., 2015",
+        "recovery_methods": [
+            "Moist swab",
+            "Other"
+        ],
+        "equipment_tested": [
+            "M-Vac/wet vacuum"
+        ],
+        "biological_material": [
+            "Saliva"
+        ],
+        "substrate_type": [
+            "Non-porous"
+        ]
+    }
+]

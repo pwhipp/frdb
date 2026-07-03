@@ -1,0 +1,169 @@
+{
+    "recovery_methods": {
+        "Tape lift": [
+            "tape-lifting",
+            "tape lifting",
+            "tape-lift",
+            "tape lift"
+        ],
+        "Moist swab": [
+            "swabbing",
+            "swab",
+            "moist"
+        ],
+        "Wet swab": [
+            "swabbing",
+            "swab",
+            "wet"
+        ],
+        "Wet-dry swab": [
+            "swabbing",
+            "swab",
+            "wet-dry",
+            "wet dry"
+        ],
+        "Swab (unspecified)": [
+            "swabbing",
+            "swab"
+        ],
+        "Other": [
+            "vacuum",
+            "excising",
+            "soaking",
+            "direct lysis",
+            "direct pcr",
+            "fta paper-scraping",
+            "scraping",
+            "plasti dip",
+            "untreated filter paper",
+            "direct extraction",
+            "cell elution"
+        ]
+    },
+    "equipment_tested": {
+        "Cotton swab": [
+            "cotton swab",
+            "cotton",
+            "150c"
+        ],
+        "Nylon/flocked swab": [
+            "nylon",
+            "flocked",
+            "floq",
+            "flock"
+        ],
+        "Rayon swab": [
+            "rayon"
+        ],
+        "Foam swab": [
+            "foam"
+        ],
+        "Polyester swab": [
+            "polyester"
+        ],
+        "Tape lift/minitape": [
+            "tape lift",
+            "tape-lift",
+            "minitape",
+            "mini-tape",
+            "gellifter",
+            "instant lifter"
+        ],
+        "Adhesive tape": [
+            "adhesive tape",
+            "scotch",
+            "sellotape",
+            "masking tape"
+        ],
+        "M-Vac/wet vacuum": [
+            "m-vac",
+            "wet vacuum",
+            "wet-vacuum"
+        ],
+        "Dry vacuum": [
+            "dry vacuum",
+            "dna buster"
+        ],
+        "Pulse lavage": [
+            "pulse lavage",
+            "interpulse",
+            "pulsavac"
+        ],
+        "Direct PCR/microFLOQ": [
+            "direct pcr",
+            "microfloq"
+        ],
+        "Filter/FTA paper": [
+            "filter paper",
+            "fta",
+            "whatman"
+        ],
+        "Scraping/excision": [
+            "scraping",
+            "excising",
+            "excision"
+        ],
+        "Direct lysis/extraction": [
+            "direct lysis",
+            "direct extraction",
+            "autolys",
+            "prepfiler",
+            "ez1"
+        ],
+        "Soaking/rinse": [
+            "soaking",
+            "rinse",
+            "atl buffer",
+            "btmix"
+        ]
+    },
+    "biological_material": {
+        "Touch DNA": [
+            "touch dna",
+            "tdna"
+        ],
+        "Blood": [
+            "blood",
+            "buffy coat"
+        ],
+        "Saliva": [
+            "saliva"
+        ],
+        "Buccal cells": [
+            "buccal"
+        ],
+        "gDNA": [
+            "gdna"
+        ],
+        "Extracted DNA": [
+            "extracted dna",
+            "dna isolate"
+        ],
+        "cfDNA": [
+            "cfdna"
+        ],
+        "Semen": [
+            "semen"
+        ],
+        "Sweat": [
+            "sweat"
+        ],
+        "Buffy coat": [
+            "buffy coat"
+        ],
+        "Various": [
+            "various"
+        ]
+    },
+    "substrate_type": {
+        "Porous": [
+            "porous"
+        ],
+        "Non-porous": [
+            "non-porous"
+        ],
+        "n/a": [
+            "n/a"
+        ]
+    }
+}
