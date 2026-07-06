@@ -1,186 +1,69 @@
 from __future__ import annotations
 
+from functools import lru_cache
 import re
 from typing import Iterable
 
+from .rule_definitions import (
+    BIOLOGICAL_MATERIAL_DEFINITIONS,
+    EQUIPMENT_DEFINITIONS,
+    FILTER_DEFINITIONS,
+    HEADER_FIELDS,
+    RECOVERY_METHOD_DEFINITIONS,
+    RuleDefinition,
+    SUBSTRATE_TYPE_DEFINITIONS,
+    SWAB_METHOD_LABELS,
+    SWAB_RECOVERY_TRIGGER_TERMS,
+    SWAB_UNSPECIFIED_LABEL,
+)
 
-HEADER_FIELDS = {
-    "authors": "authors",
-    "no. of samples (replicates)": "sample_count",
-    "recovery methods": "recovery_methods",
-    "equipment tested": "equipment_tested",
-    "biological material": "biological_material",
-    "substrate type": "substrate_type",
-    "substrate descriptions": "substrate_descriptions",
-    "statistical analysis": "statistical_analysis",
-    "str analysis": "str_analysis",
-    "results": "results",
-}
 
 REQUIRED_FIELDS = tuple(HEADER_FIELDS.values())
 
-RECOVERY_METHOD_ORDER = (
-    "Tape lift",
-    "Moist swab",
-    "Wet swab",
-    "Wet-dry swab",
-    "Swab (unspecified)",
-    "Other",
-)
 
-TAPE_LIFT_TOKENS = (
-    "tape-lifting",
-    "tape lifting",
-    "tape-lift",
-    "tape lift",
-)
+def _highlight_terms(definition: RuleDefinition) -> tuple[str, ...]:
+    return definition.highlight_terms or definition.match_terms
 
-MOIST_SWAB_TOKENS = (
-    "moist",
-)
 
-WET_SWAB_TOKENS = (
-    "wet-wet",
-    "wet wet",
-    "wet ss",
-    "wet (ss)",
-    "ss (wet)",
-    "ss - wet",
-    "wetting agents",
-    "swabs with",
-)
+@lru_cache(maxsize=1)
+def build_filter_highlight_terms() -> dict[str, dict[str, list[str]]]:
+    return {
+        field: {
+            definition.label: list(_highlight_terms(definition))
+            for definition in definitions
+        }
+        for field, definitions in FILTER_DEFINITIONS.items()
+    }
 
-WET_SWAB_ABBREVIATIONS = (
-    "ws",
-)
 
-WET_DRY_SWAB_TOKENS = (
-    "wet-dry",
-    "wet dry",
-    "wet/dry",
-    "wet and dry",
-    "double swab",
-    "ds technique",
-    "ds method",
-    "ds with",
-    "wet ds",
-    "dws technique",
-    "dss method",
-)
-
-WET_DRY_SWAB_ABBREVIATIONS = (
-    "dws",
-    "dss",
-)
-
-OTHER_RECOVERY_METHOD_TOKENS = (
-    "vacuum",
-    "excising",
-    "soaking",
-    "direct lysis",
-    "direct pcr",
-    "fta paper-scraping",
-    "scraping",
-    "plasti dip",
-    "untreated filter paper",
-    "direct extraction",
-    "cell elution",
-)
-
-EQUIPMENT_RULES = (
-    ("Cotton swab", ("cotton", "150c", "cap-shure", "securswab", "dryswab")),
-    ("Nylon/flocked swab", ("nylon", "floq", "flock", "purflock", "hydraflock")),
-    ("Rayon swab", ("rayon", "transwab")),
-    ("Foam swab", ("foam", "catch-all", "critical swab")),
-    ("Polyester swab", ("polyester", "absorbond", "honeycomb", "alpha", "miraswab")),
-    ("Tape lift/minitape", ("tape-lift", "tape lift", "minitape", "gellifter", "instant lifter")),
-    ("Adhesive tape", ("adhesive tape", "scotch", "sellotape", "masking tape", "water-soluble", "uv-irradiated")),
-    ("M-Vac/wet vacuum", ("m-vac", "wet-vacuum", "wet vacuum")),
-    ("Dry vacuum", ("dry vacuum", "dna buster", "attached to a vacuum")),
-    ("Pulse lavage", ("pulse lavage", "interpulse", "pulsavac")),
-    ("Direct PCR/microFLOQ", ("direct pcr", "microfloq")),
-    ("Filter/FTA paper", ("fta", "filter paper", "whatman")),
-    ("Scraping/excision", ("scraping", "excising", "excision")),
-    ("Direct lysis/extraction", ("direct lysis", "direct extraction", "autolys", "prepfiler", "ez1")),
-    ("Soaking/rinse", ("soaking", "rinse", "atl buffer", "btmix")),
-)
-
-EQUIPMENT_ORDER = tuple(label for label, _ in EQUIPMENT_RULES)
-
-BIOLOGICAL_MATERIAL_RULES = (
-    ("Touch DNA", ("touch dna", "tdna", "epithelial", "eppithelial", "skin cells")),
-    ("Blood", ("blood", "buffy coat")),
-    ("Saliva", ("saliva",)),
-    ("Buccal cells", ("buccal", "oral mucosa")),
-    ("gDNA", ("gdna",)),
-    ("Extracted DNA", ("extracted dna", "dna isolate")),
-    ("cfDNA", ("cfdna",)),
-    ("Semen", ("semen",)),
-    ("Sweat", ("sweat",)),
-    ("Buffy coat", ("buffy coat",)),
-    ("Various", ("various",)),
-)
-
-BIOLOGICAL_MATERIAL_ORDER = tuple(label for label, _ in BIOLOGICAL_MATERIAL_RULES)
-SUBSTRATE_TYPE_ORDER = ("Porous", "Non-porous", "n/a")
-
-FILTER_HIGHLIGHT_TERMS = {
-    "recovery_methods": {
-        "Tape lift": ["tape-lifting", "tape lifting", "tape-lift", "tape lift"],
-        "Moist swab": ["swabbing", "swab", "moist"],
-        "Wet swab": ["swabbing", "swab", "wet"],
-        "Wet-dry swab": ["swabbing", "swab", "wet-dry", "wet dry"],
-        "Swab (unspecified)": ["swabbing", "swab"],
-        "Other": [
-            "vacuum",
-            "excising",
-            "soaking",
-            "direct lysis",
-            "direct pcr",
-            "fta paper-scraping",
-            "scraping",
-            "plasti dip",
-            "untreated filter paper",
-            "direct extraction",
-            "cell elution",
-        ],
-    },
-    "equipment_tested": {
-        "Cotton swab": ["cotton swab", "cotton", "150c"],
-        "Nylon/flocked swab": ["nylon", "flocked", "floq", "flock"],
-        "Rayon swab": ["rayon"],
-        "Foam swab": ["foam"],
-        "Polyester swab": ["polyester"],
-        "Tape lift/minitape": ["tape lift", "tape-lift", "minitape", "mini-tape", "gellifter", "instant lifter"],
-        "Adhesive tape": ["adhesive tape", "scotch", "sellotape", "masking tape"],
-        "M-Vac/wet vacuum": ["m-vac", "wet vacuum", "wet-vacuum"],
-        "Dry vacuum": ["dry vacuum", "dna buster"],
-        "Pulse lavage": ["pulse lavage", "interpulse", "pulsavac"],
-        "Direct PCR/microFLOQ": ["direct pcr", "microfloq"],
-        "Filter/FTA paper": ["filter paper", "fta", "whatman"],
-        "Scraping/excision": ["scraping", "excising", "excision"],
-        "Direct lysis/extraction": ["direct lysis", "direct extraction", "autolys", "prepfiler", "ez1"],
-        "Soaking/rinse": ["soaking", "rinse", "atl buffer", "btmix"],
-    },
-    "biological_material": {
-        "Touch DNA": ["touch dna", "tdna"],
-        "Blood": ["blood", "buffy coat"],
-        "Saliva": ["saliva"],
-        "Buccal cells": ["buccal"],
-        "gDNA": ["gdna"],
-        "Extracted DNA": ["extracted dna", "dna isolate"],
-        "cfDNA": ["cfdna"],
-        "Semen": ["semen"],
-        "Sweat": ["sweat"],
-        "Buffy coat": ["buffy coat"],
-        "Various": ["various"],
-    },
-    "substrate_type": {
-        "Porous": ["porous"],
-        "Non-porous": ["non-porous"],
-        "n/a": ["n/a"],
-    },
+_RECOVERY_METHOD_BY_LABEL = {
+    definition.label: definition
+    for definition in RECOVERY_METHOD_DEFINITIONS
 }
+_SWAB_METHOD_DEFINITIONS = tuple(
+    _RECOVERY_METHOD_BY_LABEL[label]
+    for label in SWAB_METHOD_LABELS
+)
+
+RECOVERY_METHOD_ORDER = tuple(definition.label for definition in RECOVERY_METHOD_DEFINITIONS)
+TAPE_LIFT_TOKENS = _RECOVERY_METHOD_BY_LABEL["Tape lift"].match_terms
+MOIST_SWAB_TOKENS = _RECOVERY_METHOD_BY_LABEL["Moist swab"].match_terms
+WET_SWAB_TOKENS = _RECOVERY_METHOD_BY_LABEL["Wet swab"].match_terms
+WET_SWAB_ABBREVIATIONS = _RECOVERY_METHOD_BY_LABEL["Wet swab"].whole_word_terms
+WET_DRY_SWAB_TOKENS = _RECOVERY_METHOD_BY_LABEL["Wet-dry swab"].match_terms
+WET_DRY_SWAB_ABBREVIATIONS = _RECOVERY_METHOD_BY_LABEL["Wet-dry swab"].whole_word_terms
+OTHER_RECOVERY_METHOD_TOKENS = _RECOVERY_METHOD_BY_LABEL["Other"].match_terms
+
+EQUIPMENT_RULES = tuple((definition.label, definition.match_terms) for definition in EQUIPMENT_DEFINITIONS)
+EQUIPMENT_ORDER = tuple(definition.label for definition in EQUIPMENT_DEFINITIONS)
+
+BIOLOGICAL_MATERIAL_RULES = tuple(
+    (definition.label, definition.match_terms)
+    for definition in BIOLOGICAL_MATERIAL_DEFINITIONS
+)
+BIOLOGICAL_MATERIAL_ORDER = tuple(definition.label for definition in BIOLOGICAL_MATERIAL_DEFINITIONS)
+SUBSTRATE_TYPE_ORDER = tuple(definition.label for definition in SUBSTRATE_TYPE_DEFINITIONS)
+FILTER_HIGHLIGHT_TERMS = build_filter_highlight_terms()
 
 
 def canonical_recovery_methods(recovery_methods: str, equipment: str) -> list[str]:
@@ -189,7 +72,7 @@ def canonical_recovery_methods(recovery_methods: str, equipment: str) -> list[st
     matches = []
     if contains_any(content, TAPE_LIFT_TOKENS):
         matches.append("Tape lift")
-    if "swab" in content:
+    if contains_any(content, SWAB_RECOVERY_TRIGGER_TERMS):
         matches.extend(canonical_swab_methods(content))
     if contains_any(recovery_content, OTHER_RECOVERY_METHOD_TOKENS):
         matches.append("Other")
@@ -200,13 +83,13 @@ def canonical_recovery_methods(recovery_methods: str, equipment: str) -> list[st
 
 def canonical_swab_methods(content: str) -> list[str]:
     methods = []
-    if contains_any(content, MOIST_SWAB_TOKENS):
-        methods.append("Moist swab")
-    if contains_any(content, WET_SWAB_TOKENS) or contains_abbreviation(content, WET_SWAB_ABBREVIATIONS):
-        methods.append("Wet swab")
-    if contains_any(content, WET_DRY_SWAB_TOKENS) or contains_abbreviation(content, WET_DRY_SWAB_ABBREVIATIONS):
-        methods.append("Wet-dry swab")
-    return methods or ["Swab (unspecified)"]
+    for definition in _SWAB_METHOD_DEFINITIONS:
+        if contains_any(content, definition.match_terms) or contains_abbreviation(
+            content,
+            definition.whole_word_terms,
+        ):
+            methods.append(definition.label)
+    return methods or [SWAB_UNSPECIFIED_LABEL]
 
 
 def canonical_equipment(equipment: str, recovery_methods: str) -> list[str]:
@@ -231,12 +114,10 @@ def canonical_substrate_types(value: str) -> list[str]:
     items = []
     for item in split_lines(value):
         normalized = normalise_for_matching(item).rstrip(".")
-        if normalized == "porous":
-            items.append("Porous")
-        elif normalized == "non-porous":
-            items.append("Non-porous")
-        elif normalized in {"n/a", "na"}:
-            items.append("n/a")
+        for definition in SUBSTRATE_TYPE_DEFINITIONS:
+            if normalized in definition.match_terms:
+                items.append(definition.label)
+                break
     return ordered_unique(items, SUBSTRATE_TYPE_ORDER)
 
 
