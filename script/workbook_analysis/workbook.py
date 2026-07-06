@@ -6,6 +6,7 @@ from pathlib import Path
 from .comparisons import parse_comparisons
 from .publication_filters import derive_publication_filters
 from .read_excel import read_excel
+from .source_workbook import DEFAULT_COMPARISONS_SHEET
 
 
 @dataclass(frozen=True)
@@ -15,10 +16,19 @@ class ParsedWorkbook:
     comparisons: list[dict[str, str]]
 
 
-def parse_workbook(path: Path, comparisons_path: Path, comparisons_sheet: str = "Comparisons") -> ParsedWorkbook:
+def parse_workbook(
+    path: Path,
+    comparisons_sheet: str = DEFAULT_COMPARISONS_SHEET,
+    require_all_studies: bool = True,
+) -> ParsedWorkbook:
     rows = read_excel(path)
     return ParsedWorkbook(
         rows=rows,
         publication_filters=derive_publication_filters(rows),
-        comparisons=parse_comparisons(comparisons_path, rows, comparisons_sheet),
+        comparisons=parse_comparisons(
+            path,
+            rows,
+            comparisons_sheet,
+            require_all_studies=require_all_studies,
+        ),
     )

@@ -11,7 +11,7 @@ The goal of this database is to present users with published forensic recovery m
 
 Research JSON is generated from one reviewed workbook. Do not edit generated JSON files by hand.
 
-- `interactive_evidence_recovery_comparison.xlsx` is the canonical source workbook.
+- `source_materials/interactive_evidence_recovery_comparison.xlsx` is the canonical source workbook.
 - The first sheet, `studies`, contains the publication-level source rows used by the Publications table.
 - The `Comparisons` sheet contains the reviewed structured comparison rows used by the decision map.
 
@@ -22,7 +22,7 @@ The `Comparisons.author` value is the study reference. Study authors in the `stu
 Validate the workbook before generating data:
 
 ```bash
-.venv/bin/python script/validate_workbook.py interactive_evidence_recovery_comparison.xlsx
+.venv/bin/python script/validate_workbook.py
 ```
 
 The validator reports:
@@ -37,7 +37,7 @@ The validator reports:
 To regenerate the canonical data files after validation passes:
 
 ```bash
-.venv/bin/python script/analyze_workbook.py interactive_evidence_recovery_comparison.xlsx
+.venv/bin/python script/analyze_workbook.py
 ```
 
 The script writes these files by default:
@@ -49,7 +49,7 @@ The script writes these files by default:
 - `data/decision_map.json`: home-page decision map, rankings, scoring README, and explanatory README content.
 - `data/tables.json`: service table catalog and generated intermediate tables.
 
-Use `--output-folder path/to/data` to write to a different folder. Use `--compact` to write compact JSON instead of the default indented JSON. Use `--comparisons-sheet SheetName` to validate or generate data from a non-canonical comparison sheet.
+Both scripts default to `source_materials/interactive_evidence_recovery_comparison.xlsx`. Pass a workbook path only when validating or generating from a different combined workbook. Use `--output-folder path/to/data` to write to a different folder. Use `--compact` to write compact JSON instead of the default indented JSON. Use `--comparisons-sheet SheetName` to validate or generate data from a non-canonical comparison worksheet in the same combined workbook.
 
 ### `Comparisons` sheet
 
@@ -93,13 +93,13 @@ AI output is a draft extraction aid, not canonical data. Human review is require
 Create draft rows in a separate sheet such as `Comparisons_AI_Draft`, then compare them with the reviewed `Comparisons` sheet. Validate a draft sheet without replacing the canonical sheet:
 
 ```bash
-.venv/bin/python script/validate_workbook.py interactive_evidence_recovery_comparison.xlsx --comparisons-sheet Comparisons_AI_Draft
+.venv/bin/python script/validate_workbook.py --comparisons-sheet Comparisons_AI_Draft
 ```
 
 Prompt for a full draft comparison sheet:
 
 ```text
-Review each study in interactive_evidence_recovery_comparison.xlsx.
+Review each study in the combined source workbook.
 Use the studies sheet as the source evidence and create a draft comparison sheet named Comparisons_AI_Draft.
 For each study, create one row for each recovery-method comparison supported by the source result summary.
 Use the existing Comparisons columns exactly and in the same order.
@@ -113,7 +113,7 @@ Do not delete or modify the reviewed Comparisons sheet.
 Prompt for only studies that do not yet have comparisons:
 
 ```text
-Review interactive_evidence_recovery_comparison.xlsx.
+Review the combined source workbook.
 Compare the studies sheet with the existing Comparisons sheet by exact author value.
 Create draft comparison rows only for studies whose author does not already appear in Comparisons.
 Use the existing Comparisons columns exactly and in the same order, and write the draft rows to a new sheet named Comparisons_AI_Missing.
@@ -124,7 +124,7 @@ If every study already has at least one comparison, report that no draft rows ar
 Validate a missing-only draft sheet with partial coverage allowed:
 
 ```bash
-.venv/bin/python script/validate_workbook.py interactive_evidence_recovery_comparison.xlsx --comparisons-sheet Comparisons_AI_Missing --allow-missing-comparisons
+.venv/bin/python script/validate_workbook.py --comparisons-sheet Comparisons_AI_Missing --allow-missing-comparisons
 ```
 
 After review, copy accepted draft rows into `Comparisons`, run the validator, then regenerate the canonical data.

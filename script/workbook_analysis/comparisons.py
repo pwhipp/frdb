@@ -13,6 +13,7 @@ from .read_excel import (
     read_shared_strings,
 )
 from .rules import clean_text
+from .source_workbook import DEFAULT_COMPARISONS_SHEET
 
 
 COMPARISON_SUMMARY_FIELDS = (
@@ -40,7 +41,7 @@ COMPARISON_FIELDS = (
 def parse_comparisons(
     path: Path,
     publication_rows: list[dict],
-    sheet_name: str = "Comparisons",
+    sheet_name: str = DEFAULT_COMPARISONS_SHEET,
     require_all_studies: bool = True,
 ) -> list[dict[str, str]]:
     rows = read_sheet_rows(path, sheet_name)
@@ -132,7 +133,7 @@ def validate_comparison_rows(
     rows: list[dict[str, str]],
     publication_rows: list[dict],
     path: Path,
-    sheet_name: str = "Comparisons",
+    sheet_name: str = DEFAULT_COMPARISONS_SHEET,
     require_all_studies: bool = True,
 ) -> None:
     if not rows:
